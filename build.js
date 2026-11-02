@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 // Builds dist/ from recipes.json + photos/. No dependencies.
 
