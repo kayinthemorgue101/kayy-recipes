@@ -300,5 +300,34 @@
       "Strain into a clean glass bottle and refrigerate immediately.",
       "To use: 1 tsp daily, or drizzle on salads, soups or veggies."
     ]
+  },
+  {
+    "id": "immunity-booster",
+    "name": "Immunity Booster",
+    "cat": "Remedies",
+    "creator": "Kayy's notes",
+    "serves": "About 1 jar",
+    "time": "15 min",
+    "warning": true,
+    "note": "Keep it in the fridge: raw garlic in honey and water can ferment or grow bacteria at room temp. Not for babies under 1 (raw honey).",
+    "ingredients": [
+      "4 limes",
+      "6 garlic cloves",
+      "1/2 red onion, sliced",
+      "quarter-sized piece of ginger (like the coin)",
+      "1/2 jar raw honey",
+      "1/2 cup filtered, boiled water"
+    ],
+    "steps": [
+      "Cut ingredients (limes halved, garlic smashed, onion sliced).",
+      "Boil 1 cup of filtered water, covered, on high.",
+      "Squeeze lime juice into a cup (set aside).",
+      "Pour 1/2 of the honey into a cup (set aside).",
+      "Add ginger and garlic inside the honey jar.",
+      "Pour 1/2 the lime juice inside the honey jar.",
+      "Add sliced onions.",
+      "Add the rest of the lime juice.",
+      "Add 1/2 cup of the boiled water (may be less depending on how much room is left in the jar)."
+    ]
   }
 ]

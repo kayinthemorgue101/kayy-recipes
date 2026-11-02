@@ -19,7 +19,7 @@ function assert(cond, msg) {
 const ids = [
   "plantain-balls", "pastel", "lasagna", "wedges", "potato-salad",
   "guts-rolls", "ghostface", "sausage-ghosts", "magic-mouthwash",
-  "hot-cocoa-bark", "nightmare-bark", "cilantro-garlic-oil"
+  "hot-cocoa-bark", "nightmare-bark", "cilantro-garlic-oil", "immunity-booster"
 ];
 assert(recipes.map((r) => r.id).join(",") === ids.join(","), "recipe order");
 assert(categoriesOf(recipes).join("|") === "Mains|Sides & snacks|Halloween|Remedies|Christmas", "categories come from data, in first-seen order");
@@ -30,7 +30,7 @@ assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked u
 function idsMatching(cat, q) {
   return recipes.filter((r) => matchRecipe(r, cat, q)).map((r) => r.id);
 }
-assert(idsMatching("All", "").length === 12, "all recipes");
+assert(idsMatching("All", "").length === 13, "all recipes");
 assert(idsMatching("All", "plantain").join(",") === "plantain-balls,lasagna", "plantain is name/ingredient only");
 assert(idsMatching("Halloween", "plantain").length === 0, "category and search combine");
 assert(idsMatching("All", "straw").length === 0, "steps are not searched");
@@ -44,7 +44,7 @@ assert(idsMatching("All", "marshmallow").join(",") === "hot-cocoa-bark,nightmare
 assert(idsMatching("All", "Restaurant").length === 0, "restaurant credit stays in the note, not search");
 assert(idsMatching("All", "kayinthemorgue").join(",") === "hot-cocoa-bark,nightmare-bark", "both barks credit her handle");
 assert(idsMatching("Christmas", "jack").join(",") === "nightmare-bark", "jack faces ingredient");
-assert(idsMatching("Remedies", "").join(",") === "magic-mouthwash,cilantro-garlic-oil", "remedies");
+assert(idsMatching("Remedies", "").join(",") === "magic-mouthwash,cilantro-garlic-oil,immunity-booster", "remedies");
 assert(idsMatching("All", "detox").join(",") === "cilantro-garlic-oil", "alt name is searchable");
 assert(idsMatching("All", "botulism").length === 0, "warning note is not searched");
 
@@ -65,8 +65,8 @@ for (const recipe of recipes) {
   assert(index.includes(recipe.name), "name on home " + recipe.id);
 }
 assert(index.includes("Christmas"), "christmas chip");
-assert(index.includes(">All <span class=\"n\">12</span>"), "all count");
-assert(index.includes(">Remedies <span class=\"n\">2</span>"), "remedies count");
+assert(index.includes(">All <span class=\"n\">13</span>"), "all count");
+assert(index.includes(">Remedies <span class=\"n\">3</span>"), "remedies count");
 assert(index.includes("Sides &amp; snacks"), "ampersand escaped");
 assert(index.includes("/photos/hot-cocoa-bark.jpg"), "hot cocoa photo on the grid");
 assert(index.includes("/photos/nightmare-bark.jpg"), "nightmare photo on the grid");
@@ -105,6 +105,15 @@ assert(oil.includes("Unknown source"), "unknown creator");
 assert(oil.includes("/placeholder.png") && oil.includes("Photo to come"), "placeholder photo");
 assert(!oil.includes("Original on"), "no source link");
 assert(oil.includes("refrigerate immediately"), "strain step");
+
+const booster = fs.readFileSync(path.join(root, "dist", "r", "immunity-booster.html"), "utf8");
+assert(booster.includes("/photos/immunity-booster.jpg"), "her photo");
+assert(booster.includes('class="note warn"'), "fridge warning callout");
+assert(booster.includes("Not for babies under 1 (raw honey)."), "honey warning kept");
+assert(booster.includes("Kayy's notes"), "creator is her notes");
+assert(booster.includes("quarter-sized piece of ginger (like the coin)"), "ginger line verbatim");
+assert(booster.includes("Add 1/2 cup of the boiled water (may be less depending on how much room is left in the jar)."), "last step verbatim");
+assert(!booster.includes("Original on"), "no source link");
 assert(index.includes("<title>Kayy's Cauldron</title>"), "home title");
 assert(index.includes('og:site_name" content="Kayy\'s Cauldron"'), "og site name");
 assert(index.includes("KAYY'S <b>CAULDRON</b>"), "wordmark");
