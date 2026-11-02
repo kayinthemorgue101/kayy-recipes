@@ -77,8 +77,20 @@ function validate(recipes) {
   }
 }
 
+function creatorHref(creator) {
+  if (creator === "@kayinthemorgue") return "https://x.com/kayinthemorgue";
+  return "";
+}
+
+function creatorName(creator) {
+  const href = creatorHref(creator);
+  const text = escText(creator);
+  if (!href) return '<span class="who">' + text + "</span>";
+  return '<a class="who" href="' + escAttr(href) + '">' + text + "</a>";
+}
+
 function byline(recipe) {
-  const who = '<span class="who">' + escText(recipe.creator) + "</span>";
+  const who = creatorName(recipe.creator);
   if (!recipe.platform) return who;
   return who + ' <span class="on">on ' + escText(recipe.platform) + "</span>";
 }
@@ -159,14 +171,23 @@ function card(recipe, cats) {
   const badge = caption
     ? `<span class="badge" aria-hidden="true">${escText(caption)}</span>`
     : "";
-  return `<a class="card" href="/r/${recipe.id}" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
-  <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
-  <span class="card-body">
-    <span class="cat">${escText(recipe.cat)}</span>
-    <span class="name">${escText(recipe.name)}</span>
-    <span class="by">${escText(recipe.creator)}</span>
-  </span>
-</a>`;
+  const href = creatorHref(recipe.creator);
+  const by = href
+    ? `<a class="by" href="${escAttr(href)}">${escText(recipe.creator)}</a>`
+    : `<span class="by">${escText(recipe.creator)}</span>`;
+  const akaLine = recipe.aka || recipe.subtitle;
+  const aka = akaLine ? `<span class="aka">${escText(akaLine)}</span>` : "";
+  return `<article class="card" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
+  <a class="card-link" href="/r/${recipe.id}">
+    <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
+    <span class="card-body">
+      <span class="cat">${escText(recipe.cat)}</span>
+      <span class="name">${escText(recipe.name)}</span>
+      ${aka}
+    </span>
+  </a>
+  ${by}
+</article>`;
 }
 
 function homeMain(recipes, cats) {
@@ -189,7 +210,6 @@ function homeMain(recipes, cats) {
 
   return `<main id="main">
   <section class="hero">
-    <p class="eyebrow">Instagram · X · TikTok · Pinterest</p>
     <h1>Don't lose <em>another one</em>.</h1>
     <p class="lede">Recipes saved before the screenshots buried them. Sorted by category, photo still attached, original post one tap away.</p>
   </section>
@@ -217,8 +237,13 @@ function recipeMain(recipe, cats) {
   const caption = captionFor(recipe);
   const fig = caption ? `<figcaption>${escText(caption)}</figcaption>` : "";
   const note = recipe.note
-    ? `<aside class="note"><p class="note-k">Note</p><p>${escText(recipe.note)}</p></aside>`
+    ? `<aside class="note${recipe.warning ? " warn" : ""}"><p class="note-k">${recipe.warning ? "Warning" : "Note"}</p><p>${escText(recipe.note)}</p></aside>`
     : "";
+  const aka = recipe.aka
+    ? `<p class="aka">Also shared as <span>${escText(recipe.aka)}</span></p>`
+    : recipe.subtitle
+      ? `<p class="aka">${escText(recipe.subtitle)}</p>`
+      : "";
   const ingredients = recipe.ingredients.map((item) => `<li>${escText(item)}</li>`).join("");
   const steps = recipe.steps.map((item) => `<li>${escText(item)}</li>`).join("");
   const url = safeUrl(recipe.url);
@@ -236,12 +261,14 @@ function recipeMain(recipe, cats) {
       <div class="recipe-copy">
         <p class="cat">${escText(recipe.cat)}</p>
         <h1>${escText(recipe.name)}</h1>
+        ${aka}
         <p class="by">${byline(recipe)}</p>
+        ${recipe.warning ? note : ""}
         <dl class="facts">
           <div><dt>Makes</dt><dd>${escText(recipe.serves)}</dd></div>
           <div><dt>Time</dt><dd>${escText(recipe.time)}</dd></div>
         </dl>
-        ${note}
+        ${recipe.warning ? "" : note}
         <h2>Ingredients <span class="h-n">${recipe.ingredients.length}</span></h2>
         <ul class="ings">${ingredients}</ul>
         <h2>Steps <span class="h-n">${recipe.steps.length}</span></h2>
@@ -263,7 +290,10 @@ function recipeJsonLd(recipe, siteUrl) {
     "@type": "Recipe",
     name: recipe.name,
     image: [siteUrl + imagePath(recipe)],
-    author: { "@type": "Person", name: recipe.creator },
+    author: Object.assign(
+      { "@type": "Person", name: recipe.creator },
+      creatorHref(recipe.creator) ? { url: creatorHref(recipe.creator) } : {}
+    ),
     recipeYield: recipe.serves,
     recipeCategory: recipe.cat,
     recipeIngredient: recipe.ingredients,
@@ -297,7 +327,7 @@ function build() {
   fs.copyFileSync(path.join(root, "src", "favicon.svg"), path.join(dist, "favicon.svg"));
   fs.copyFileSync(path.join(root, "recipes.json"), path.join(dist, "recipes.json"));
 
-  const homeDescription = "Kayy's Cauldron. Dishes saved from Instagram, X, TikTok, and Pinterest, sorted by category, with the photo still attached.";
+  const homeDescription = "Kayy's Cauldron. Dishes saved from the feed, sorted by category, with the photo still attached.";
   const homeImage = siteUrl + "/photos/guts-rolls.jpg";
   fs.writeFileSync(path.join(dist, "index.html"), page({
     title: SITE_NAME,
