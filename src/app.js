@@ -119,7 +119,7 @@
       if (shown === 0) {
         emptyEl.textContent = cat && cat !== "All"
           ? "Nothing in " + cat + " matches that."
-          : "Nothing in the box matches that.";
+          : "Nothing in the cauldron matches that.";
       }
     }
     if (clearBtn) clearBtn.hidden = !q.trim();

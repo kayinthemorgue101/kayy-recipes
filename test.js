@@ -86,7 +86,11 @@ assert(nightmare.includes("stitched grins"), "nightmare step");
 assert(nightmare.includes("Original recipe, amounts are estimates."), "nightmare note verbatim");
 assert(!nightmare.includes("Original on"), "nightmare has no source button");
 assert(nightmare.includes("og:image"), "og present");
-assert(nightmare.includes("https://kayy-recipes.onrender.com/photos/nightmare-bark.jpg"), "absolute og image");
+assert(nightmare.includes("https://kayys-cauldron.onrender.com/photos/nightmare-bark.jpg"), "absolute og image");
+assert(index.includes("<title>Kayy's Cauldron</title>"), "home title");
+assert(index.includes('og:site_name" content="Kayy\'s Cauldron"'), "og site name");
+assert(index.includes("KAYY'S <b>CAULDRON</b>"), "wordmark");
+assert(!index.includes("Kayy's Box") && !index.includes(">BOX<"), "old name is gone");
 assert(nightmare.includes('"@type":"Recipe"') || nightmare.includes('"@type": "Recipe"'), "recipe schema");
 
 const guts = fs.readFileSync(path.join(root, "dist", "r", "guts-rolls.html"), "utf8");

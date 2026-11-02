@@ -8,8 +8,8 @@ const { createPlaceholder } = require("./src/placeholder.js");
 
 const root = __dirname;
 const dist = path.join(root, "dist");
-const SITE_NAME = "Kayy's Box";
-const DEFAULT_SITE = "https://kayy-recipes.onrender.com";
+const SITE_NAME = "Kayy's Cauldron";
+const DEFAULT_SITE = "https://kayys-cauldron.onrender.com";
 
 const ACCENTS = ["#ff5a4a", "#ff8a3d", "#e7b15a", "#d9cbb8", "#f0d27a"];
 
@@ -133,14 +133,14 @@ ${boot}
 <a class="skip" href="#main">${opts.skip || "Skip to recipes"}</a>
 <header class="top">
   <div class="top-inner">
-    <a class="brand" href="/"><span class="brand-name">KAYY'S <b>BOX</b></span></a>
+    <a class="brand" href="/"><svg class="mark" width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><path d="M11 9.2c1.1-1.5 1.1-2.3 0-3.8M16 8.6c1.3-1.6 1.3-2.5 0-4.1M21 9.2c1.1-1.5 1.1-2.3 0-3.8" fill="none" stroke="#f3e2c8" stroke-width="1.3" stroke-linecap="round" opacity=".85"/><ellipse cx="16" cy="13" rx="9.2" ry="2.15" fill="#f3e2c8"/><ellipse cx="16" cy="13" rx="6.3" ry="1.2" fill="#1a1210"/><path d="M7.6 13.4h16.8c-.35 6.4-2.7 10.4-8.4 10.4s-8.05-4-8.4-10.4z" fill="#241c18" stroke="#e23b2e" stroke-width=".8"/><ellipse cx="16" cy="26.2" rx="3.4" ry="1.15" fill="#e23b2e"/><ellipse cx="16" cy="25.7" rx="1.5" ry=".6" fill="#ff8a3d"/></svg><span class="brand-name">KAYY'S <b>CAULDRON</b></span></a>
     <a class="handle" href="https://x.com/kayinthemorgue">@kayinthemorgue</a>
   </div>
 </header>
 ${opts.main}
 <footer class="foot">
   <div class="foot-inner">
-    <p class="mark-name">KAYY'S BOX</p>
+    <p class="mark-name">KAYY'S <b>CAULDRON</b></p>
     <p class="mark-by">Recipes for <a href="https://x.com/kayinthemorgue">@kayinthemorgue</a></p>
     <p class="mark-note">Cooking is an art. The camera roll is where recipes go to die.</p>
   </div>
@@ -206,7 +206,7 @@ function homeMain(recipes, cats) {
   </div>
   <noscript><p class="noscript">Filtering and search need JavaScript. Every recipe is still listed below.</p><style>html.boot .grid{visibility:visible}</style></noscript>
   <p class="count" data-count aria-live="polite">${recipes.length} recipes</p>
-  <p class="empty" data-empty hidden>Nothing in the box matches that.</p>
+  <p class="empty" data-empty hidden>Nothing in the cauldron matches that.</p>
   <div class="grid" data-grid>
 ${cards}
   </div>
@@ -297,7 +297,7 @@ function build() {
   fs.copyFileSync(path.join(root, "src", "favicon.svg"), path.join(dist, "favicon.svg"));
   fs.copyFileSync(path.join(root, "recipes.json"), path.join(dist, "recipes.json"));
 
-  const homeDescription = "Kayy's personal recipe box. Dishes saved from Instagram, X, TikTok, and Pinterest, sorted by category, with the photo still attached.";
+  const homeDescription = "Kayy's Cauldron. Dishes saved from Instagram, X, TikTok, and Pinterest, sorted by category, with the photo still attached.";
   const homeImage = siteUrl + "/photos/guts-rolls.jpg";
   fs.writeFileSync(path.join(dist, "index.html"), page({
     title: SITE_NAME,
@@ -327,16 +327,16 @@ function build() {
   }
 
   fs.writeFileSync(path.join(dist, "404.html"), page({
-    title: "Not in the box — " + SITE_NAME,
-    description: "That link isn't a recipe in Kayy's Box.",
+    title: "Not in the cauldron — " + SITE_NAME,
+    description: "That link isn't a recipe in Kayy's Cauldron.",
     canonical: siteUrl + "/",
     image: homeImage,
-    imageAlt: "Kayy's Box",
+    imageAlt: SITE_NAME,
     main: `<main id="main" class="missing">
   <p class="eyebrow">404</p>
-  <h1>Not in the box.</h1>
+  <h1>Not in the cauldron.</h1>
   <p class="lede">That link isn't a recipe here. It may have been renamed, or it never made the cut.</p>
-  <a class="btn" href="/">Back to the box</a>
+  <a class="btn" href="/">Back to the cauldron</a>
 </main>`
   }));
 

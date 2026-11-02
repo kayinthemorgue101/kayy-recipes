@@ -1,6 +1,6 @@
-# Kayy's Box
+# Kayy's Cauldron
 
-A personal recipe box for [@kayinthemorgue](https://x.com/kayinthemorgue). Recipes saved from Instagram, X, TikTok, and Pinterest, sorted by category, each with a photo. One shareable link per recipe.
+Recipes for [@kayinthemorgue](https://x.com/kayinthemorgue), saved from Instagram, X, TikTok, and Pinterest. Sorted by category, each with a photo, and one shareable link per recipe.
 
 Static site. No backend, no dependencies, no secrets.
 
@@ -72,7 +72,7 @@ The repo includes a [Blueprint](https://render.com/docs/blueprint-spec) at `rend
 
 Each recipe lives at `/r/<id>` (for example `/r/guts-rolls`). The blueprint rewrites `/r/*` to `/r/*.html`, so those links resolve without a server. Render serves real files first, then applies the rewrite.
 
-`SITE_URL` in `render.yaml` is `https://kayy-recipes.onrender.com`. Open Graph and Twitter card images are absolute URLs built from that origin. If the public URL is different (another service name, or a custom domain), change `SITE_URL` to that origin with no trailing slash and redeploy. Link previews need the absolute image address.
+`SITE_URL` in `render.yaml` is `https://kayys-cauldron.onrender.com`. Open Graph and Twitter card images are absolute URLs built from that origin. If the public URL is different (another service name, or a custom domain), change `SITE_URL` to that origin with no trailing slash and redeploy. Link previews need the absolute image address.
 
 ### Manual setup
 
