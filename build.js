@@ -257,8 +257,10 @@ ${opts.main}
 <footer class="foot">
   <div class="foot-inner">
     <p class="mark-name">KAYY'S <b>CAULDRON</b></p>
-    <p class="mark-by">Curated by <a href="${KAYY_X}" target="_blank" rel="noopener noreferrer">@kayy</a></p>
-    <p class="mark-note">Cooking is an art. The camera roll is where recipes go to die.</p>
+    <p class="mark-by">Conjured by <a href="${KAYY_X}" target="_blank" rel="noopener noreferrer">@kayinthemorgue</a></p>
+
+    <p class="mark-note">Cooking is an art. My ADHD turned the camera roll into a recipe mass grave. 💀</p>
+
   </div>
 </footer>
 
