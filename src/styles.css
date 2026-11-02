@@ -438,6 +438,22 @@ html.boot .grid { visibility: hidden; }
   letter-spacing: .14em;
   text-transform: uppercase;
 }
+.note.warn {
+  background: #2a1210;
+  border: 1px solid #6e2a24;
+  border-left: 4px solid var(--blood);
+  box-shadow: 0 0 22px #e23b2e22;
+  color: #fff4f0;
+  font-size: 16px;
+}
+.note.warn .note-k { color: #ff6b5c; }
+.aka {
+  margin: 6px 0 0;
+  color: var(--dim);
+  font: 400 13px/1.4 var(--mono);
+}
+.aka span, .card .aka { color: var(--bone); }
+.card .aka { margin: 0; font-size: 12px; }
 
 .recipe h2 {
   margin: 26px 0 4px;

@@ -42,6 +42,8 @@ Categories are not listed anywhere in the code. Filter chips are whatever shows 
 | `serves` | yes | How much it makes. |
 | `time` | yes | How long it takes, in plain language. |
 | `note` | no | Estimates, warnings, or anything she should see before cooking. |
+| `warning` | no | Set to `true` and the note renders as a warning callout above the recipe. |
+| `aka` | no | Alternate name. Shown under the title, and included in search. |
 | `imageCaption` | no | Small label on the photo, such as `Concept image`. |
 | `ingredients` | yes | Array of strings. Don't rewrite them; the page prints each string as-is. |
 | `steps` | yes | Array of strings, in order. Same rule. |

@@ -2,8 +2,9 @@
 // so these function declarations are visible to app.js.
 
 function recipeHaystack(recipe) {
-  return [recipe.name, recipe.creator]
+  return [recipe.name, recipe.aka, recipe.creator]
     .concat(recipe.ingredients || [])
+    .filter(Boolean)
     .join("\n")
     .toLowerCase();
 }

@@ -175,12 +175,14 @@ function card(recipe, cats) {
   const by = href
     ? `<a class="by" href="${escAttr(href)}">${escText(recipe.creator)}</a>`
     : `<span class="by">${escText(recipe.creator)}</span>`;
+  const aka = recipe.aka ? `<span class="aka">${escText(recipe.aka)}</span>` : "";
   return `<article class="card" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
   <a class="card-link" href="/r/${recipe.id}">
     <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
     <span class="card-body">
       <span class="cat">${escText(recipe.cat)}</span>
       <span class="name">${escText(recipe.name)}</span>
+      ${aka}
     </span>
   </a>
   ${by}
@@ -235,7 +237,10 @@ function recipeMain(recipe, cats) {
   const caption = captionFor(recipe);
   const fig = caption ? `<figcaption>${escText(caption)}</figcaption>` : "";
   const note = recipe.note
-    ? `<aside class="note"><p class="note-k">Note</p><p>${escText(recipe.note)}</p></aside>`
+    ? `<aside class="note${recipe.warning ? " warn" : ""}"><p class="note-k">${recipe.warning ? "Warning" : "Note"}</p><p>${escText(recipe.note)}</p></aside>`
+    : "";
+  const aka = recipe.aka
+    ? `<p class="aka">Also shared as <span>${escText(recipe.aka)}</span></p>`
     : "";
   const ingredients = recipe.ingredients.map((item) => `<li>${escText(item)}</li>`).join("");
   const steps = recipe.steps.map((item) => `<li>${escText(item)}</li>`).join("");
@@ -254,12 +259,14 @@ function recipeMain(recipe, cats) {
       <div class="recipe-copy">
         <p class="cat">${escText(recipe.cat)}</p>
         <h1>${escText(recipe.name)}</h1>
+        ${aka}
         <p class="by">${byline(recipe)}</p>
+        ${recipe.warning ? note : ""}
         <dl class="facts">
           <div><dt>Makes</dt><dd>${escText(recipe.serves)}</dd></div>
           <div><dt>Time</dt><dd>${escText(recipe.time)}</dd></div>
         </dl>
-        ${note}
+        ${recipe.warning ? "" : note}
         <h2>Ingredients <span class="h-n">${recipe.ingredients.length}</span></h2>
         <ul class="ings">${ingredients}</ul>
         <h2>Steps <span class="h-n">${recipe.steps.length}</span></h2>
