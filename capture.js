@@ -428,13 +428,6 @@ for (
     '<link rel="manifest" href="/cauldron.webmanifest">\n</head>'
   );
 
-  if(rel==='index.html'){
-    doc=doc.replace(
-      '<div class="tools">',
-      '<p style="margin:16px 0"><a href="/inbox/" style="color:#ffb685;font-weight:700">🖤 Saved for Later · Private Inbox</a></p>\n<div class="tools">'
-    );
-  }
-
   fs.writeFileSync(file,doc);
 }
 
