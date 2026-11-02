@@ -267,6 +267,24 @@ html.boot .grid { visibility: hidden; }
   box-shadow: inset 0 3px 0 var(--c, var(--line));
 }
 .card:hover { text-decoration: none; }
+.card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.card-link:hover { color: inherit; text-decoration: none; }
+.card > .by {
+  margin: 0;
+  padding: 0 10px 12px;
+}
+.by a, a.by {
+  color: inherit;
+  text-decoration: none;
+}
+.by a:hover, a.by:hover { color: var(--bone); text-decoration: underline; }
 .shot {
   position: relative;
   display: block;
@@ -300,7 +318,7 @@ html.boot .grid { visibility: hidden; }
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 10px 12px;
+  padding: 10px 10px 4px;
 }
 .cat {
   display: flex;
@@ -579,7 +597,8 @@ html.boot .grid { visibility: hidden; }
   main { padding-top: 28px; }
   .lede { font-size: 14px; }
   .badge { font-size: 10px; left: 10px; bottom: 10px; }
-  .card-body { padding: 12px 14px 14px; }
+  .card-body { padding: 12px 14px 4px; }
+  .card > .by { padding: 0 14px 14px; }
   .name { font-size: 16px; }
   .actions { flex-direction: row; }
   .actions .btn { width: auto; flex: 1; }

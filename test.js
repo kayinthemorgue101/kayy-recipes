@@ -41,18 +41,16 @@ assert(idsMatching("All", "  letkadocook ").join(",") === "lasagna", "creator se
 assert(idsMatching("Mains", "").length === 3, "mains count");
 assert(idsMatching("Christmas", "").join(",") === "hot-cocoa-bark,nightmare-bark", "christmas");
 assert(idsMatching("All", "marshmallow").join(",") === "hot-cocoa-bark,nightmare-bark", "marshmallow");
-assert(idsMatching("All", "Restaurant").join(",") === "hot-cocoa-bark", "creator Restaurant Clicks");
+assert(idsMatching("All", "Restaurant").length === 0, "restaurant credit stays in the note, not search");
+assert(idsMatching("All", "kayinthemorgue").join(",") === "hot-cocoa-bark,nightmare-bark", "both barks credit her handle");
 assert(idsMatching("Christmas", "jack").join(",") === "nightmare-bark", "jack faces ingredient");
 
-const photoIds = ids.filter((id) => id !== "hot-cocoa-bark");
-for (const id of photoIds) {
+for (const id of ids) {
   const file = path.join(root, "photos", id + ".jpg");
   assert(fs.existsSync(file), "photo " + id);
   const buf = fs.readFileSync(file);
   assert(buf.readUInt16BE(0) === 0xffd8, id + " is jpeg");
 }
-assert(!fs.existsSync(path.join(root, "photos", "hot-cocoa-bark.jpg")), "hot cocoa has no photo on purpose");
-
 const png = fs.readFileSync(path.join(root, "dist", "placeholder.png"));
 assert(png.readUInt32BE(16) === 720 && png.readUInt32BE(20) === 900, "placeholder is 720x900");
 
@@ -64,24 +62,27 @@ for (const recipe of recipes) {
 assert(index.includes("Christmas"), "christmas chip");
 assert(index.includes(">All <span class=\"n\">11</span>"), "all count");
 assert(index.includes("Sides &amp; snacks"), "ampersand escaped");
-assert(index.includes("/placeholder.png"), "placeholder used on the grid");
+assert(index.includes("/photos/hot-cocoa-bark.jpg"), "hot cocoa photo on the grid");
 assert(index.includes("/photos/nightmare-bark.jpg"), "nightmare photo on the grid");
-assert(index.includes("Concept image"), "concept badge");
-assert(index.includes("Photo to come"), "missing-photo badge");
+assert(!index.includes("Concept image") && !index.includes("Photo to come"), "bark captions removed");
+assert(index.includes('href="https://x.com/kayinthemorgue"'), "handle links to X");
 assert(!/kaysmorgue\.art|art\.art/i.test(index), "home does not reference the art sites");
 
 const cocoa = fs.readFileSync(path.join(root, "dist", "r", "hot-cocoa-bark.html"), "utf8");
+assert(cocoa.includes("Adapted from Restaurant Clicks."), "restaurant credit kept in the note");
 assert(cocoa.includes("Girl Scouts"), "hot cocoa note");
 assert(cocoa.includes("9x13 pan"), "hot cocoa serves");
 assert(cocoa.includes("(estimate) Chill"), "estimate step kept");
-assert(cocoa.includes("/placeholder.png"), "hot cocoa uses placeholder");
-assert(cocoa.includes("Photo to come"), "hot cocoa caption");
+assert(cocoa.includes("/photos/hot-cocoa-bark.jpg"), "hot cocoa uses its photo");
+assert(!cocoa.includes("Photo to come") && !cocoa.includes("/placeholder.png"), "placeholder caption is gone");
+assert(cocoa.includes('class="who" href="https://x.com/kayinthemorgue"'), "hot cocoa creator links to X");
 assert(!cocoa.includes("Original on"), "no source button without a url");
 assert(cocoa.includes('data-copy="/r/hot-cocoa-bark"'), "copy link");
 
 const nightmare = fs.readFileSync(path.join(root, "dist", "r", "nightmare-bark.html"), "utf8");
 assert(nightmare.includes("/photos/nightmare-bark.jpg"), "nightmare photo");
-assert(nightmare.includes("Concept image"), "concept caption");
+assert(!nightmare.includes("Concept image"), "concept caption removed");
+assert(nightmare.includes('class="who" href="https://x.com/kayinthemorgue"'), "nightmare creator links to X");
 assert(nightmare.includes("stitched grins"), "nightmare step");
 assert(nightmare.includes("Original recipe, amounts are estimates."), "nightmare note verbatim");
 assert(!nightmare.includes("Original on"), "nightmare has no source button");

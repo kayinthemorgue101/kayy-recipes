@@ -36,7 +36,7 @@ Categories are not listed anywhere in the code. Filter chips are whatever shows 
 | `id` | yes | URL slug. Lowercase letters, numbers, and dashes. This is also the photo file name. |
 | `name` | yes | The dish name, as you want it shown. |
 | `cat` | yes | Category label. Reuse one (`Mains`, `Sides & snacks`, `Halloween`, `Remedies`, `Christmas`) or type a new one. |
-| `creator` | yes | Who it's from. A handle, a name, or `Kayy` for an original. |
+| `creator` | yes | Who it's from. `@kayinthemorgue` links to [her X profile](https://x.com/kayinthemorgue). |
 | `platform` | no | `Instagram`, `X`, `TikTok`, `Pinterest`, and so on. Leave it off if there isn't one. |
 | `url` | no | Link to the original post. Leave it off, or use an empty string, and the "Original on …" button is hidden. |
 | `serves` | yes | How much it makes. |
@@ -53,7 +53,7 @@ Example, with no post to link and no photo yet:
   "id": "hot-cocoa-bark",
   "name": "Hot cocoa bark",
   "cat": "Christmas",
-  "creator": "Restaurant Clicks",
+  "creator": "@kayinthemorgue",
   "serves": "~24 pieces (9x13 pan)",
   "time": "15 min + 30 min chill",
   "note": "Optional note.",

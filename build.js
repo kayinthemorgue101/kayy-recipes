@@ -77,8 +77,20 @@ function validate(recipes) {
   }
 }
 
+function creatorHref(creator) {
+  if (creator === "@kayinthemorgue") return "https://x.com/kayinthemorgue";
+  return "";
+}
+
+function creatorName(creator) {
+  const href = creatorHref(creator);
+  const text = escText(creator);
+  if (!href) return '<span class="who">' + text + "</span>";
+  return '<a class="who" href="' + escAttr(href) + '">' + text + "</a>";
+}
+
 function byline(recipe) {
-  const who = '<span class="who">' + escText(recipe.creator) + "</span>";
+  const who = creatorName(recipe.creator);
   if (!recipe.platform) return who;
   return who + ' <span class="on">on ' + escText(recipe.platform) + "</span>";
 }
@@ -159,14 +171,20 @@ function card(recipe, cats) {
   const badge = caption
     ? `<span class="badge" aria-hidden="true">${escText(caption)}</span>`
     : "";
-  return `<a class="card" href="/r/${recipe.id}" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
-  <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
-  <span class="card-body">
-    <span class="cat">${escText(recipe.cat)}</span>
-    <span class="name">${escText(recipe.name)}</span>
-    <span class="by">${escText(recipe.creator)}</span>
-  </span>
-</a>`;
+  const href = creatorHref(recipe.creator);
+  const by = href
+    ? `<a class="by" href="${escAttr(href)}">${escText(recipe.creator)}</a>`
+    : `<span class="by">${escText(recipe.creator)}</span>`;
+  return `<article class="card" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
+  <a class="card-link" href="/r/${recipe.id}">
+    <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
+    <span class="card-body">
+      <span class="cat">${escText(recipe.cat)}</span>
+      <span class="name">${escText(recipe.name)}</span>
+    </span>
+  </a>
+  ${by}
+</article>`;
 }
 
 function homeMain(recipes, cats) {
@@ -263,7 +281,10 @@ function recipeJsonLd(recipe, siteUrl) {
     "@type": "Recipe",
     name: recipe.name,
     image: [siteUrl + imagePath(recipe)],
-    author: { "@type": "Person", name: recipe.creator },
+    author: Object.assign(
+      { "@type": "Person", name: recipe.creator },
+      creatorHref(recipe.creator) ? { url: creatorHref(recipe.creator) } : {}
+    ),
     recipeYield: recipe.serves,
     recipeCategory: recipe.cat,
     recipeIngredient: recipe.ingredients,
