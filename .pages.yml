@@ -1,0 +1,76 @@
+
+# Kayy's Cauldron Admin Editor
+
+media:
+  input: photos
+  output: /photos
+  extensions: [jpg]
+  rename: false
+
+content:
+  - name: recipes
+    label: "Kayy's Recipe Box"
+    type: file
+    path: recipes.json
+    format: json
+    list: true
+    fields:
+      - name: id
+        label: Recipe ID
+        type: string
+        required: true
+        pattern: "^[a-z0-9-]+$"
+      - name: name
+        label: Recipe Name
+        type: string
+        required: true
+      - name: cat
+        label: Category
+        type: string
+        required: true
+      - name: original
+        label: Kayy's Original Concoction
+        type: boolean
+      - name: creator
+        label: Recipe Creator
+        type: string
+        required: true
+      - name: platform
+        label: Source Platform
+        type: string
+      - name: url
+        label: Original Post URL
+        type: string
+      - name: serves
+        label: Servings
+        type: string
+        required: true
+      - name: time
+        label: Cooking Time
+        type: string
+        required: true
+      - name: aka
+        label: Also Known As
+        type: string
+      - name: subtitle
+        label: Subtitle
+        type: string
+      - name: note
+        label: Notes
+        type: text
+      - name: warning
+        label: Show Warning
+        type: boolean
+      - name: imageCaption
+        label: Photo Caption
+        type: string
+      - name: ingredients
+        label: Ingredients
+        type: string
+        list: true
+        required: true
+      - name: steps
+        label: Instructions
+        type: text
+        list: true
+        required: true
