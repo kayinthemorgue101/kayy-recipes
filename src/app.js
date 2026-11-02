@@ -1,3 +1,4 @@
+
 (function () {
   var toastEl = document.getElementById("toast");
   var toastTimer;
@@ -58,6 +59,7 @@
   var emptyEl = document.querySelector("[data-empty]");
   var dataEl = document.getElementById("recipe-data");
   var recipes = [];
+
   try {
     recipes = JSON.parse(dataEl.textContent);
   } catch (e) {
@@ -66,39 +68,67 @@
   }
 
   var byId = {};
-  recipes.forEach(function (recipe) { byId[recipe.id] = recipe; });
+  recipes.forEach(function (recipe) {
+    byId[recipe.id] = recipe;
+  });
 
   var params = new URLSearchParams(location.search);
   var cat = params.get("cat") || "All";
   var q = params.get("q") || "";
   var known = {};
-  chips.forEach(function (chip) { known[chip.getAttribute("data-chip")] = true; });
+
+  chips.forEach(function (chip) {
+    known[chip.getAttribute("data-chip")] = true;
+  });
+
   if (!known[cat]) cat = "All";
   if (input) input.value = q;
 
   function syncUrl() {
     var url = new URL(location.href);
-    if (cat && cat !== "All") url.searchParams.set("cat", cat);
-    else url.searchParams.delete("cat");
-    if (q.trim()) url.searchParams.set("q", q.trim());
-    else url.searchParams.delete("q");
+
+    if (cat && cat !== "All") {
+      url.searchParams.set("cat", cat);
+    } else {
+      url.searchParams.delete("cat");
+    }
+
+    if (q.trim()) {
+      url.searchParams.set("q", q.trim());
+    } else {
+      url.searchParams.delete("q");
+    }
+
     var next = url.pathname + url.search;
-    if (next !== location.pathname + location.search) history.replaceState({}, "", next);
+    if (next !== location.pathname + location.search) {
+      history.replaceState({}, "", next);
+    }
   }
 
   function apply() {
     var counts = { All: 0 };
+
     recipes.forEach(function (recipe) {
       if (!matchRecipe(recipe, "All", q)) return;
+
       counts.All++;
+
       counts[recipe.cat] = (counts[recipe.cat] || 0) + 1;
+
+      // Original recipes also belong to Kayy's Concoctions.
+      if (recipe.original === true) {
+        counts["Kayy's Concoctions"] =
+          (counts["Kayy's Concoctions"] || 0) + 1;
+      }
     });
 
     chips.forEach(function (chip) {
       var name = chip.getAttribute("data-chip");
       var n = counts[name] || 0;
       var num = chip.querySelector(".n");
+
       if (num) num.textContent = String(n);
+
       var on = name === cat;
       chip.classList.toggle("on", on);
       chip.setAttribute("aria-pressed", on ? "true" : "false");
@@ -106,23 +136,32 @@
     });
 
     var shown = 0;
+
     cards.forEach(function (card) {
       var recipe = byId[card.getAttribute("data-id")];
       var visible = !!(recipe && matchRecipe(recipe, cat, q));
+
       card.hidden = !visible;
       if (visible) shown++;
     });
 
-    if (countEl) countEl.textContent = shown + (shown === 1 ? " recipe" : " recipes");
+    if (countEl) {
+      countEl.textContent =
+        shown + (shown === 1 ? " recipe" : " recipes");
+    }
+
     if (emptyEl) {
       emptyEl.hidden = shown !== 0;
+
       if (shown === 0) {
         emptyEl.textContent = cat && cat !== "All"
           ? "Nothing in " + cat + " matches that."
           : "Nothing in the cauldron matches that.";
       }
     }
+
     if (clearBtn) clearBtn.hidden = !q.trim();
+
     document.documentElement.classList.remove("boot");
     syncUrl();
   }
@@ -130,26 +169,36 @@
   chips.forEach(function (chip) {
     chip.addEventListener("click", function () {
       if (chip.disabled) return;
+
       cat = chip.getAttribute("data-chip");
       apply();
     });
   });
 
   var form = document.querySelector(".search");
-  if (form) form.addEventListener("submit", function (e) { e.preventDefault(); });
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+    });
+  }
+
   if (input) {
     input.addEventListener("input", function () {
       q = input.value;
       apply();
     });
   }
+
   if (clearBtn) {
     clearBtn.addEventListener("click", function () {
       q = "";
+
       if (input) {
         input.value = "";
         input.focus();
       }
+
       apply();
     });
   }
