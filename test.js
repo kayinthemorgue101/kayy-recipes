@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+const fs = require("fs");
+const path = require("path");
+const { build } = require("./build.js");
+const { matchRecipe, categoriesOf } = require("./src/filter.js");
+
+build();
+
+const root = __dirname;
+const recipes = JSON.parse(fs.readFileSync(path.join(root, "recipes.json"), "utf8"));
+let fails = 0;
+function assert(cond, msg) {
+  if (!cond) {
+    fails++;
+    console.error("FAIL " + msg);
+  }
+}
+
+const ids = [
+  "plantain-balls", "pastel", "lasagna", "wedges", "potato-salad",
+  "guts-rolls", "ghostface", "sausage-ghosts", "magic-mouthwash",
+  "hot-cocoa-bark", "nightmare-bark"
+];
+assert(recipes.map((r) => r.id).join(",") === ids.join(","), "recipe order");
+assert(categoriesOf(recipes).join("|") === "Mains|Sides & snacks|Halloween|Remedies|Christmas", "categories come from data, in first-seen order");
+
+const extra = categoriesOf(recipes.concat([{ id: "x", cat: "Midnight snack", name: "n", creator: "c", ingredients: ["a"] }]));
+assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked up from the data");
+
+function idsMatching(cat, q) {
+  return recipes.filter((r) => matchRecipe(r, cat, q)).map((r) => r.id);
+}
+assert(idsMatching("All", "").length === 11, "all recipes");
+assert(idsMatching("All", "plantain").join(",") === "plantain-balls,lasagna", "plantain is name/ingredient only");
+assert(idsMatching("Halloween", "plantain").length === 0, "category and search combine");
+assert(idsMatching("All", "straw").length === 0, "steps are not searched");
+assert(idsMatching("All", "benzocaine").length === 0, "notes are not searched");
+assert(idsMatching("All", "cellophane").length === 0, "hot cocoa note is not searched");
+assert(idsMatching("All", "benadryl").join(",") === "magic-mouthwash", "ingredient search is case-insensitive");
+assert(idsMatching("All", "  letkadocook ").join(",") === "lasagna", "creator search trims");
+assert(idsMatching("Mains", "").length === 3, "mains count");
+assert(idsMatching("Christmas", "").join(",") === "hot-cocoa-bark,nightmare-bark", "christmas");
+assert(idsMatching("All", "marshmallow").join(",") === "hot-cocoa-bark,nightmare-bark", "marshmallow");
+assert(idsMatching("All", "Restaurant").join(",") === "hot-cocoa-bark", "creator Restaurant Clicks");
+assert(idsMatching("Christmas", "jack").join(",") === "nightmare-bark", "jack faces ingredient");
+
+const photoIds = ids.filter((id) => id !== "hot-cocoa-bark");
+for (const id of photoIds) {
+  const file = path.join(root, "photos", id + ".jpg");
+  assert(fs.existsSync(file), "photo " + id);
+  const buf = fs.readFileSync(file);
+  assert(buf.readUInt16BE(0) === 0xffd8, id + " is jpeg");
+}
+assert(!fs.existsSync(path.join(root, "photos", "hot-cocoa-bark.jpg")), "hot cocoa has no photo on purpose");
+
+const png = fs.readFileSync(path.join(root, "dist", "placeholder.png"));
+assert(png.readUInt32BE(16) === 720 && png.readUInt32BE(20) === 900, "placeholder is 720x900");
+
+const index = fs.readFileSync(path.join(root, "dist", "index.html"), "utf8");
+for (const recipe of recipes) {
+  assert(index.includes('data-id="' + recipe.id + '"'), "card " + recipe.id);
+  assert(index.includes(recipe.name), "name on home " + recipe.id);
+}
+assert(index.includes("Christmas"), "christmas chip");
+assert(index.includes(">All <span class=\"n\">11</span>"), "all count");
+assert(index.includes("Sides &amp; snacks"), "ampersand escaped");
+assert(index.includes("/placeholder.png"), "placeholder used on the grid");
+assert(index.includes("/photos/nightmare-bark.jpg"), "nightmare photo on the grid");
+assert(index.includes("Concept image"), "concept badge");
+assert(index.includes("Photo to come"), "missing-photo badge");
+assert(!/kaysmorgue\.art|art\.art/i.test(index), "home does not reference the art sites");
+
+const cocoa = fs.readFileSync(path.join(root, "dist", "r", "hot-cocoa-bark.html"), "utf8");
+assert(cocoa.includes("Girl Scouts"), "hot cocoa note");
+assert(cocoa.includes("9x13 pan"), "hot cocoa serves");
+assert(cocoa.includes("(estimate) Chill"), "estimate step kept");
+assert(cocoa.includes("/placeholder.png"), "hot cocoa uses placeholder");
+assert(cocoa.includes("Photo to come"), "hot cocoa caption");
+assert(!cocoa.includes("Original on"), "no source button without a url");
+assert(cocoa.includes('data-copy="/r/hot-cocoa-bark"'), "copy link");
+
+const nightmare = fs.readFileSync(path.join(root, "dist", "r", "nightmare-bark.html"), "utf8");
+assert(nightmare.includes("/photos/nightmare-bark.jpg"), "nightmare photo");
+assert(nightmare.includes("Concept image"), "concept caption");
+assert(nightmare.includes("stitched grins"), "nightmare step");
+assert(nightmare.includes("Original recipe, amounts are estimates."), "nightmare note verbatim");
+assert(!nightmare.includes("Original on"), "nightmare has no source button");
+assert(nightmare.includes("og:image"), "og present");
+assert(nightmare.includes("https://kayy-recipes.onrender.com/photos/nightmare-bark.jpg"), "absolute og image");
+assert(nightmare.includes('"@type":"Recipe"') || nightmare.includes('"@type": "Recipe"'), "recipe schema");
+
+const guts = fs.readFileSync(path.join(root, "dist", "r", "guts-rolls.html"), "utf8");
+assert(guts.includes("Red velvet"), "guts title");
+assert(guts.includes("Original on Instagram"), "source button when url exists");
+assert(!guts.includes("Photo to come"), "real photo has no placeholder caption");
+
+const wedges = fs.readFileSync(path.join(root, "dist", "r", "wedges.html"), "utf8");
+assert(!wedges.includes('class="note"'), "optional note omitted");
+
+const plantain = fs.readFileSync(path.join(root, "dist", "r", "plantain-balls.html"), "utf8");
+assert(plantain.includes("165°F"), "degree sign preserved");
+assert(plantain.includes("https://photos.app.goo.gl/nqTZRwCNGq5ZGv6J9"), "source url preserved");
+
+const css = fs.readFileSync(path.join(root, "src", "styles.css"), "utf8");
+assert(!/#a78bfa|purple/i.test(css), "palette is not the naka-names purple");
+assert(/Orbitron/.test(index) && /JetBrains\+Mono/.test(index), "display and mono fonts");
+
+const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+assert(/recipes\.json/.test(readme) && /photos\//.test(readme), "readme explains adding a recipe");
+assert(/render\.yaml|Blueprint/i.test(readme), "readme explains render");
+assert(!/kaysmorgue\.art|art\.art/i.test(readme), "readme does not reference the art sites");
+
+if (fails) {
+  console.error(fails + " failed");
+  process.exit(1);
+}
+console.log("ok " + recipes.length + " recipes");

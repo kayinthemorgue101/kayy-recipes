@@ -1,0 +1,27 @@
+# Render Blueprint: static recipe box. No secrets, no backend.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: kayy-recipes
+    runtime: static
+    buildCommand: node build.js
+    staticPublishPath: ./dist
+    envVars:
+      - key: SITE_URL
+        value: https://kayy-recipes.onrender.com
+    routes:
+      # /r/<id> serves the recipe page. Files that exist are served first;
+      # this rewrite covers the extensionless path.
+      - type: rewrite
+        source: /r/*
+        destination: /r/*.html
+    headers:
+      - path: /photos/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /placeholder.png
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
