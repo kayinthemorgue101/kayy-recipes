@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Builds dist/ from recipes.json + photos/. No dependencies.
+// Kayy's Cauldron — complete site builder.
+// Builds the public website from recipes.json and photos/.
 
 const fs = require("fs");
 const path = require("path");
@@ -8,27 +9,86 @@ const { createPlaceholder } = require("./src/placeholder.js");
 
 const root = __dirname;
 const dist = path.join(root, "dist");
+
 const SITE_NAME = "Kayy's Cauldron";
-const DEFAULT_SITE = "https://kayys-cauldron.onrender.com";
+const SITE_URL = "https://kayyscauldron.xyz";
 const CONCOCTIONS = "Kayy's Concoctions";
+const KAYY_X = "https://x.com/kayinthemorgue";
 
-const ACCENTS = ["#ff5a4a", "#ff8a3d", "#e7b15a", "#d9cbb8", "#f0d27a"];
+const ACCENTS = [
+  "#ff5a4a",
+  "#ff8a3d",
+  "#e7b15a",
+  "#d9cbb8",
+  "#f0d27a"
+];
 
-function escText(s) {
-  return String(s == null ? "" : s)
+function escText(value) {
+  return String(value == null ? "" : value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
 
-function escAttr(s) {
-  return escText(s).replace(/"/g, "&quot;");
+function escAttr(value) {
+  return escText(value).replace(/"/g, "&quot;");
 }
 
-function safeUrl(url) {
-  if (typeof url !== "string") return "";
-  const trimmed = url.trim();
-  return /^https?:\/\//i.test(trimmed) ? trimmed : "";
+function safeUrl(value) {
+  if (typeof value !== "string") return "";
+  const url = value.trim();
+  return /^https?:\/\//i.test(url) ? url : "";
+}
+
+function displayCreator(creator) {
+  if (
+    creator === "@kayinthemorgue" ||
+    creator === "@kayy"
+  ) {
+    return "@kayy";
+  }
+  return creator;
+}
+
+function creatorHref(creator) {
+  if (
+    creator === "@kayinthemorgue" ||
+    creator === "@kayy"
+  ) {
+    return KAYY_X;
+  }
+  return "";
+}
+
+function creatorName(creator) {
+  const name = escText(displayCreator(creator));
+  const href = creatorHref(creator);
+
+  if (!href) {
+    return '<span class="who">' + name + "</span>";
+  }
+
+  return '<a class="who" href="' +
+    escAttr(href) +
+    '" target="_blank" rel="noopener noreferrer">' +
+    name + "</a>";
+}
+
+function originalByline(recipe) {
+  if (recipe.original === true) {
+    return creatorName(recipe.creator);
+  }
+
+  const who = creatorName(recipe.creator);
+
+  if (recipe.platform) {
+    return who +
+      ' <span class="on">on ' +
+      escText(recipe.platform) +
+      "</span>";
+  }
+
+  return who;
 }
 
 function photoFile(recipe) {
@@ -46,18 +106,24 @@ function imagePath(recipe) {
 }
 
 function captionFor(recipe) {
-  if (recipe.imageCaption) return String(recipe.imageCaption);
-  if (!hasPhoto(recipe)) return "Photo to come";
+  if (recipe.imageCaption) {
+    return String(recipe.imageCaption);
+  }
+  if (!hasPhoto(recipe)) {
+    return "Photo to come";
+  }
   return "";
 }
 
 function describe(recipe) {
-  const who = recipe.platform
-    ? recipe.creator + " on " + recipe.platform
-    : recipe.creator;
+  const who = recipe.platform && !recipe.original
+    ? displayCreator(recipe.creator) +
+      " on " + recipe.platform
+    : displayCreator(recipe.creator);
 
-  return recipe.cat + " from " + who + ". Makes " +
-    recipe.serves + ". " + recipe.time + ".";
+  return recipe.cat + " from " + who +
+    ". Makes " + recipe.serves +
+    ". " + recipe.time + ".";
 }
 
 function accentFor(cat, cats) {
@@ -66,94 +132,71 @@ function accentFor(cat, cats) {
 }
 
 function validate(recipes) {
-  const ids = new Set();
-
-  if (!Array.isArray(recipes) || recipes.length === 0) {
-    throw new Error("recipes.json must be a non-empty array");
+  if (!Array.isArray(recipes) || !recipes.length) {
+    throw new Error("recipes.json must contain recipes");
   }
 
+  const ids = new Set();
+
   for (const recipe of recipes) {
-    for (const key of ["id", "name", "cat", "creator", "serves", "time"]) {
-      if (typeof recipe[key] !== "string" || !recipe[key].trim()) {
-        throw new Error("Recipe missing " + key + " (" +
-          (recipe && recipe.id) + ")");
+    for (const field of [
+      "id", "name", "cat", "creator", "serves", "time"
+    ]) {
+      if (
+        typeof recipe[field] !== "string" ||
+        !recipe[field].trim()
+      ) {
+        throw new Error(
+          "Missing " + field + " in " + recipe.id
+        );
       }
     }
 
     if (!/^[a-z0-9-]+$/.test(recipe.id)) {
-      throw new Error("Invalid recipe id: " + recipe.id);
+      throw new Error("Invalid recipe ID: " + recipe.id);
     }
 
     if (ids.has(recipe.id)) {
-      throw new Error("Duplicate recipe id: " + recipe.id);
+      throw new Error("Duplicate recipe: " + recipe.id);
     }
 
     ids.add(recipe.id);
 
-    if (!Array.isArray(recipe.ingredients) || !recipe.ingredients.length) {
+    if (
+      !Array.isArray(recipe.ingredients) ||
+      !recipe.ingredients.length
+    ) {
       throw new Error(recipe.id + " needs ingredients");
     }
 
-    if (!Array.isArray(recipe.steps) || !recipe.steps.length) {
+    if (
+      !Array.isArray(recipe.steps) ||
+      !recipe.steps.length
+    ) {
       throw new Error(recipe.id + " needs steps");
     }
   }
 }
 
-function creatorHref(creator) {
-  if (creator === "@kayinthemorgue") {
-    return "https://x.com/kayinthemorgue";
-  }
-  return "";
-}
-
-function creatorName(creator) {
-  const href = creatorHref(creator);
-  const name = escText(creator);
-
-  if (!href) {
-    return '<span class="who">' + name + "</span>";
-  }
-
-  return '<a class="who" href="' + escAttr(href) + '">' +
-    name + "</a>";
-}
-
-function byline(recipe) {
-  const who = creatorName(recipe.creator);
-
-  if (!recipe.platform) return who;
-
-  return who + ' <span class="on">on ' +
-    escText(recipe.platform) + "</span>";
-}
-
-function originalByline(recipe) {
-  if (recipe.original === true) {
-    return "Conjured by " + creatorName(recipe.creator);
-  }
-
-  return byline(recipe);
-}
-
-function jsonForScript(value) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
+function jsonForScript(data) {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 function page(opts) {
-  const image = opts.image;
-
   const boot = opts.boot
-    ? `<script>(function(){try{var p=new URLSearchParams(location.search);if((p.get("q")||"").trim()||(p.get("cat")||"").trim())document.documentElement.classList.add("boot");}catch(e){}})();</script>`
+    ? '<script>document.documentElement.classList.add("boot");</script>'
     : "";
 
   const jsonLd = opts.jsonLd
-    ? `<script type="application/ld+json">${jsonForScript(opts.jsonLd)}</script>`
+    ? '<script type="application/ld+json">' +
+      jsonForScript(opts.jsonLd) +
+      "</script>"
     : "";
 
   const data = opts.recipes
-    ? `<script id="recipe-data" type="application/json">${jsonForScript(opts.recipes)}</script>
-<script src="/filter.js"></script>`
+    ? '<script id="recipe-data" type="application/json">' +
+      jsonForScript(opts.recipes) +
+      '</script><script src="/filter.js"></script>'
     : "";
 
   return `<!DOCTYPE html>
@@ -171,15 +214,15 @@ function page(opts) {
 <meta property="og:title" content="${escAttr(opts.title)}">
 <meta property="og:description" content="${escAttr(opts.description)}">
 <meta property="og:url" content="${escAttr(opts.canonical)}">
-<meta property="og:image" content="${escAttr(image)}">
+<meta property="og:image" content="${escAttr(opts.image)}">
 <meta property="og:image:width" content="720">
 <meta property="og:image:height" content="900">
-<meta property="og:image:alt" content="${escAttr(opts.imageAlt)}">
+<meta property="og:image:alt" content="${escAttr(opts.imageAlt || SITE_NAME)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escAttr(opts.title)}">
 <meta name="twitter:description" content="${escAttr(opts.description)}">
-<meta name="twitter:image" content="${escAttr(image)}">
-<meta name="twitter:image:alt" content="${escAttr(opts.imageAlt)}">
+<meta name="twitter:image" content="${escAttr(opts.image)}">
+<meta name="twitter:image:alt" content="${escAttr(opts.imageAlt || SITE_NAME)}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,6 +232,7 @@ ${boot}
 </head>
 <body>
 <a class="skip" href="#main">${opts.skip || "Skip to recipes"}</a>
+
 <header class="top">
   <div class="top-inner">
     <a class="brand" href="/">
@@ -202,52 +246,62 @@ ${boot}
       </svg>
       <span class="brand-name">KAYY'S <b>CAULDRON</b></span>
     </a>
-    <a class="handle" href="https://x.com/kayinthemorgue">@kayinthemorgue</a>
+    <a class="handle" href="${KAYY_X}" target="_blank" rel="noopener noreferrer">@kayy</a>
   </div>
 </header>
+
 ${opts.main}
+
 <footer class="foot">
   <div class="foot-inner">
     <p class="mark-name">KAYY'S <b>CAULDRON</b></p>
-    <p class="mark-by">Recipes for <a href="https://x.com/kayinthemorgue">@kayinthemorgue</a></p>
+    <p class="mark-by">Curated by <a href="${KAYY_X}" target="_blank" rel="noopener noreferrer">@kayy</a></p>
     <p class="mark-note">Cooking is an art. The camera roll is where recipes go to die.</p>
   </div>
 </footer>
+
 <div id="toast" role="status"></div>
 ${data}
 <script src="/app.js"></script>
 ${jsonLd}
 </body>
-</html>
-`;
+</html>`;
 }
 
 function card(recipe, cats) {
   const caption = captionFor(recipe);
 
   const badge = caption
-    ? `<span class="badge" aria-hidden="true">${escText(caption)}</span>`
+    ? '<span class="badge" aria-hidden="true">' +
+      escText(caption) + "</span>"
     : "";
 
   const href = creatorHref(recipe.creator);
+  const name = escText(displayCreator(recipe.creator));
 
   const credit = recipe.original === true
-    ? "Conjured by " + escText(recipe.creator)
-    : escText(recipe.creator);
+    ? name
+    : name;
 
   const by = href
-    ? `<a class="by" href="${escAttr(href)}">${credit}</a>`
-    : `<span class="by">${credit}</span>`;
+    ? '<a class="by" href="' + escAttr(href) +
+      '" target="_blank" rel="noopener noreferrer">' +
+      credit + "</a>"
+    : '<span class="by">' + credit + "</span>";
 
   const akaLine = recipe.aka || recipe.subtitle;
-
   const aka = akaLine
-    ? `<span class="aka">${escText(akaLine)}</span>`
+    ? '<span class="aka">' +
+      escText(akaLine) +
+      "</span>"
     : "";
 
   return `<article class="card" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
   <a class="card-link" href="/r/${recipe.id}">
-    <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
+    <span class="shot">
+      <img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">
+      ${badge}
+    </span>
     <span class="card-body">
       <span class="cat">${escText(recipe.cat)}</span>
       <span class="name">${escText(recipe.name)}</span>
@@ -259,30 +313,40 @@ function card(recipe, cats) {
 }
 
 function homeMain(recipes, cats) {
+  const originalCount = recipes.filter(
+    (recipe) => recipe.original === true
+  ).length;
+
+  const otherCategories = cats.filter(
+    (cat) => cat !== CONCOCTIONS && cat !== "All"
+  );
+
   const chips = [
-    { name: "All", count: recipes.length },
-    ...cats.map((cat) => ({
+    {
+      name: CONCOCTIONS,
+      count: originalCount
+    },
+    ...otherCategories.map((cat) => ({
       name: cat,
-      count: recipes.filter((recipe) =>
-        cat === CONCOCTIONS
-          ? recipe.original === true
-          : recipe.cat === cat
+      count: recipes.filter(
+        (recipe) => recipe.cat === cat
       ).length
-    }))
+    })),
+    {
+      name: "All",
+      count: recipes.length
+    }
   ].map((chip, i) => {
     const on = i === 0;
 
     return `<button type="button" class="chip${on ? " on" : ""}" data-chip="${escAttr(chip.name)}" aria-pressed="${on ? "true" : "false"}">${escText(chip.name)} <span class="n">${chip.count}</span></button>`;
-  }).join("\n    ");
+  }).join("\n");
 
   const cards = recipes.map((recipe, i) => {
     const html = card(recipe, cats);
-
-    if (i === 0) {
-      return html.replace('loading="lazy"', 'fetchpriority="high"');
-    }
-
-    return html;
+    return i === 0
+      ? html.replace('loading="lazy"', 'fetchpriority="high"')
+      : html;
   }).join("\n");
 
   return `<main id="main">
@@ -290,10 +354,12 @@ function homeMain(recipes, cats) {
     <h1>Don't lose <em>another one</em>.</h1>
     <p class="lede">Recipes saved before the screenshots buried them. Sorted by category, photo still attached, original post one tap away.</p>
   </section>
+
   <div class="tools">
     <div class="chips" role="toolbar" aria-label="Filter by category">
       ${chips}
     </div>
+
     <form class="search" role="search" action="/" method="get">
       <label class="sr" for="q">Search by dish, creator, or ingredient</label>
       <svg class="mag" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -304,17 +370,21 @@ function homeMain(recipes, cats) {
       <button type="button" class="clear" data-clear hidden aria-label="Clear search">×</button>
     </form>
   </div>
+
   <noscript>
     <p class="noscript">Filtering and search need JavaScript. Every recipe is still listed below.</p>
     <style>html.boot .grid{visibility:visible}</style>
   </noscript>
+
   <p class="concoctions-tagline" data-concoctions-tagline hidden>Straight from my cauldron. No borrowed spells.</p>
-  <p class="count" data-count aria-live="polite">${recipes.length} recipes</p>
+  <p class="count" data-count aria-live="polite">${originalCount} recipes</p>
   <p class="empty" data-empty hidden>Nothing in the cauldron matches that.</p>
+
   <div class="grid" data-grid>
 ${cards}
   </div>
 </main>
+
 <script>
 (function () {
   var tagline = document.querySelector("[data-concoctions-tagline]");
@@ -336,6 +406,7 @@ ${cards}
   });
 
   var observer = new MutationObserver(updateTagline);
+
   chips.forEach(function (chip) {
     observer.observe(chip, {
       attributes: true,
@@ -352,26 +423,32 @@ function recipeMain(recipe, cats) {
   const caption = captionFor(recipe);
 
   const fig = caption
-    ? `<figcaption>${escText(caption)}</figcaption>`
+    ? "<figcaption>" + escText(caption) + "</figcaption>"
     : "";
 
   const note = recipe.note
-    ? `<aside class="note${recipe.warning ? " warn" : ""}"><p class="note-k">${recipe.warning ? "Warning" : "Note"}</p><p>${escText(recipe.note)}</p></aside>`
+    ? `<aside class="note${recipe.warning ? " warn" : ""}">
+        <p class="note-k">${recipe.warning ? "Warning" : "Note"}</p>
+        <p>${escText(recipe.note)}</p>
+      </aside>`
     : "";
 
   const aka = recipe.aka
-    ? `<p class="aka">Also shared as <span>${escText(recipe.aka)}</span></p>`
+    ? '<p class="aka">Also shared as <span>' +
+      escText(recipe.aka) + "</span></p>"
     : recipe.subtitle
-      ? `<p class="aka">${escText(recipe.subtitle)}</p>`
+      ? '<p class="aka">' +
+        escText(recipe.subtitle) +
+        "</p>"
       : "";
 
-  const ingredients = recipe.ingredients
-    .map((item) => `<li>${escText(item)}</li>`)
-    .join("");
+  const ingredients = recipe.ingredients.map(
+    (item) => "<li>" + escText(item) + "</li>"
+  ).join("");
 
-  const steps = recipe.steps
-    .map((item) => `<li>${escText(item)}</li>`)
-    .join("");
+  const steps = recipe.steps.map(
+    (item) => "<li>" + escText(item) + "</li>"
+  ).join("");
 
   const url = safeUrl(recipe.url);
 
@@ -380,28 +457,42 @@ function recipeMain(recipe, cats) {
     : "";
 
   return `<main id="main">
-  <a class="back" href="/">← All recipes</a>
+  <a class="back" href="/">← Back to the cauldron</a>
+
   <article class="recipe" style="--c:${accentFor(recipe.cat, cats)}">
     <div class="layout">
       <figure class="hero-shot">
         <img src="${imagePath(recipe)}" width="720" height="900" alt="" fetchpriority="high" decoding="async">
         ${fig}
       </figure>
+
       <div class="recipe-copy">
         <p class="cat">${escText(recipe.cat)}</p>
         <h1>${escText(recipe.name)}</h1>
         ${aka}
         <p class="by">${originalByline(recipe)}</p>
+
         ${recipe.warning ? note : ""}
+
         <dl class="facts">
-          <div><dt>Makes</dt><dd>${escText(recipe.serves)}</dd></div>
-          <div><dt>Time</dt><dd>${escText(recipe.time)}</dd></div>
+          <div>
+            <dt>Makes</dt>
+            <dd>${escText(recipe.serves)}</dd>
+          </div>
+          <div>
+            <dt>Time</dt>
+            <dd>${escText(recipe.time)}</dd>
+          </div>
         </dl>
+
         ${recipe.warning ? "" : note}
+
         <h2>Ingredients <span class="h-n">${recipe.ingredients.length}</span></h2>
         <ul class="ings">${ingredients}</ul>
+
         <h2>Steps <span class="h-n">${recipe.steps.length}</span></h2>
         <ol class="steps">${steps}</ol>
+
         <div class="actions">
           ${source}
           <button type="button" class="btn ghost" data-copy="/r/${recipe.id}">Copy link</button>
@@ -421,7 +512,10 @@ function recipeJsonLd(recipe, siteUrl) {
     name: recipe.name,
     image: [siteUrl + imagePath(recipe)],
     author: Object.assign(
-      { "@type": "Person", name: recipe.creator },
+      {
+        "@type": "Person",
+        name: displayCreator(recipe.creator)
+      },
       creatorHref(recipe.creator)
         ? { url: creatorHref(recipe.creator) }
         : {}
@@ -429,34 +523,57 @@ function recipeJsonLd(recipe, siteUrl) {
     recipeYield: recipe.serves,
     recipeCategory: recipe.cat,
     recipeIngredient: recipe.ingredients,
-    recipeInstructions: recipe.steps.map((step) => ({
-      "@type": "HowToStep",
-      text: step
-    })),
+    recipeInstructions: recipe.steps.map(
+      (step) => ({
+        "@type": "HowToStep",
+        text: step
+      })
+    ),
     description: describe(recipe),
     url: siteUrl + "/r/" + recipe.id
   };
 
-  if (url) data.isBasedOn = url;
+  if (url) {
+    data.isBasedOn = url;
+  }
 
   return data;
 }
 
 function build() {
   const recipes = JSON.parse(
-    fs.readFileSync(path.join(root, "recipes.json"), "utf8")
+    fs.readFileSync(
+      path.join(root, "recipes.json"),
+      "utf8"
+    )
   );
 
   validate(recipes);
 
   const cats = categoriesOf(recipes);
-  const siteUrl = (process.env.SITE_URL || DEFAULT_SITE).replace(/\/$/, "");
 
-  fs.rmSync(dist, { recursive: true, force: true });
-  fs.mkdirSync(path.join(dist, "photos"), { recursive: true });
-  fs.mkdirSync(path.join(dist, "r"), { recursive: true });
+  // Always use the verified custom domain for links
+  // and social media previews.
+  const siteUrl = SITE_URL;
 
-  for (const file of fs.readdirSync(path.join(root, "photos"))) {
+  fs.rmSync(dist, {
+    recursive: true,
+    force: true
+  });
+
+  fs.mkdirSync(
+    path.join(dist, "photos"),
+    { recursive: true }
+  );
+
+  fs.mkdirSync(
+    path.join(dist, "r"),
+    { recursive: true }
+  );
+
+  for (const file of fs.readdirSync(
+    path.join(root, "photos")
+  )) {
     if (file.endsWith(".jpg")) {
       fs.copyFileSync(
         path.join(root, "photos", file),
@@ -470,27 +587,72 @@ function build() {
     createPlaceholder()
   );
 
-  fs.copyFileSync(path.join(root, "src", "styles.css"), path.join(dist, "styles.css"));
-  fs.copyFileSync(path.join(root, "src", "app.js"), path.join(dist, "app.js"));
-  fs.copyFileSync(path.join(root, "src", "filter.js"), path.join(dist, "filter.js"));
-  fs.copyFileSync(path.join(root, "src", "favicon.svg"), path.join(dist, "favicon.svg"));
-  fs.copyFileSync(path.join(root, "recipes.json"), path.join(dist, "recipes.json"));
+  fs.copyFileSync(
+    path.join(root, "src", "styles.css"),
+    path.join(dist, "styles.css")
+  );
+
+  // Create the browser app with Concoctions
+  // as the default homepage category.
+  // The source app.js file stays unchanged.
+  let appJs = fs.readFileSync(
+    path.join(root, "src", "app.js"),
+    "utf8"
+  );
+
+  const oldDefault =
+    'var cat = params.get("cat") || "All";';
+
+  const newDefault =
+    'var cat = params.get("cat") || "Kayy\\'s Concoctions";';
+
+  if (!appJs.includes(oldDefault)) {
+    throw new Error(
+      "Cannot locate the category default in src/app.js"
+    );
+  }
+
+  appJs = appJs.replace(oldDefault, newDefault);
+
+  fs.writeFileSync(
+    path.join(dist, "app.js"),
+    appJs
+  );
+
+  fs.copyFileSync(
+    path.join(root, "src", "filter.js"),
+    path.join(dist, "filter.js")
+  );
+
+  fs.copyFileSync(
+    path.join(root, "src", "favicon.svg"),
+    path.join(dist, "favicon.svg")
+  );
+
+  fs.copyFileSync(
+    path.join(root, "recipes.json"),
+    path.join(dist, "recipes.json")
+  );
 
   const homeDescription =
-    "Kayy's Cauldron. Dishes saved from the feed, sorted by category, with the photo still attached.";
+    "Kayy's Cauldron. Original concoctions, recipes, remedies, and delicious discoveries.";
 
-  const homeImage = siteUrl + "/photos/guts-rolls.jpg";
+  const homeImage =
+    siteUrl + "/photos/guts-rolls.jpg";
 
-  fs.writeFileSync(path.join(dist, "index.html"), page({
-    title: SITE_NAME,
-    description: homeDescription,
-    canonical: siteUrl + "/",
-    image: homeImage,
-    imageAlt: "Red velvet guts cinnamon rolls",
-    boot: true,
-    recipes: recipes,
-    main: homeMain(recipes, cats)
-  }));
+  fs.writeFileSync(
+    path.join(dist, "index.html"),
+    page({
+      title: SITE_NAME,
+      description: homeDescription,
+      canonical: siteUrl + "/",
+      image: homeImage,
+      imageAlt: "Red velvet guts cinnamon rolls",
+      boot: true,
+      recipes: recipes,
+      main: homeMain(recipes, cats)
+    })
+  );
 
   for (const recipe of recipes) {
     const title = recipe.name + " — " + SITE_NAME;
@@ -504,7 +666,8 @@ function build() {
         canonical: siteUrl + "/r/" + recipe.id,
         image: siteUrl + imagePath(recipe),
         imageAlt: captionFor(recipe)
-          ? recipe.name + ". " + captionFor(recipe) + "."
+          ? recipe.name + ". " +
+            captionFor(recipe) + "."
           : recipe.name,
         ogType: "article",
         skip: "Skip to recipe",
@@ -514,23 +677,37 @@ function build() {
     );
   }
 
-  fs.writeFileSync(path.join(dist, "404.html"), page({
-    title: "Not in the cauldron — " + SITE_NAME,
-    description: "That link isn't a recipe in Kayy's Cauldron.",
-    canonical: siteUrl + "/",
-    image: homeImage,
-    imageAlt: SITE_NAME,
-    main: `<main id="main" class="missing">
+  fs.writeFileSync(
+    path.join(dist, "404.html"),
+    page({
+      title: "Not in the cauldron — " + SITE_NAME,
+      description:
+        "That link isn't a recipe in Kayy's Cauldron.",
+      canonical: siteUrl + "/",
+      image: homeImage,
+      imageAlt: SITE_NAME,
+      main: `<main id="main" class="missing">
   <p class="eyebrow">404</p>
   <h1>Not in the cauldron.</h1>
   <p class="lede">That link isn't a recipe here. It may have been renamed, or it never made the cut.</p>
   <a class="btn" href="/">Back to the cauldron</a>
 </main>`
-  }));
+    })
+  );
 
-  console.log("Built " + recipes.length + " recipes → " + dist);
+  console.log(
+    "Built " + recipes.length +
+    " recipes for " + SITE_URL
+  );
 }
 
-if (require.main === module) build();
+if (require.main === module) {
+  build();
+}
 
-module.exports = { build, validate, safeUrl, escText };
+module.exports = {
+  build,
+  validate,
+  safeUrl,
+  escText
+};
