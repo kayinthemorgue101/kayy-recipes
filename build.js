@@ -278,10 +278,7 @@ function card(recipe, cats) {
 
   const href = creatorHref(recipe.creator);
   const name = escText(displayCreator(recipe.creator));
-
-  const credit = recipe.original === true
-    ? name
-    : name;
+  const credit = name;
 
   const by = href
     ? '<a class="by" href="' + escAttr(href) +
@@ -551,9 +548,6 @@ function build() {
   validate(recipes);
 
   const cats = categoriesOf(recipes);
-
-  // Always use the verified custom domain for links
-  // and social media previews.
   const siteUrl = SITE_URL;
 
   fs.rmSync(dist, {
@@ -592,9 +586,8 @@ function build() {
     path.join(dist, "styles.css")
   );
 
-  // Create the browser app with Concoctions
-  // as the default homepage category.
-  // The source app.js file stays unchanged.
+  // Set Concoctions as the default category.
+  // No changes to src/app.js are necessary.
   let appJs = fs.readFileSync(
     path.join(root, "src", "app.js"),
     "utf8"
@@ -604,7 +597,7 @@ function build() {
     'var cat = params.get("cat") || "All";';
 
   const newDefault =
-    'var cat = params.get("cat") || "Kayy\\'s Concoctions";';
+    "var cat = params.get('cat') || \"Kayy's Concoctions\";";
 
   if (!appJs.includes(oldDefault)) {
     throw new Error(
