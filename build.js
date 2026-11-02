@@ -175,7 +175,8 @@ function card(recipe, cats) {
   const by = href
     ? `<a class="by" href="${escAttr(href)}">${escText(recipe.creator)}</a>`
     : `<span class="by">${escText(recipe.creator)}</span>`;
-  const aka = recipe.aka ? `<span class="aka">${escText(recipe.aka)}</span>` : "";
+  const akaLine = recipe.aka || recipe.subtitle;
+  const aka = akaLine ? `<span class="aka">${escText(akaLine)}</span>` : "";
   return `<article class="card" data-id="${escAttr(recipe.id)}" style="--c:${accentFor(recipe.cat, cats)}">
   <a class="card-link" href="/r/${recipe.id}">
     <span class="shot"><img src="${imagePath(recipe)}" width="720" height="900" alt="" loading="lazy" decoding="async">${badge}</span>
@@ -241,7 +242,9 @@ function recipeMain(recipe, cats) {
     : "";
   const aka = recipe.aka
     ? `<p class="aka">Also shared as <span>${escText(recipe.aka)}</span></p>`
-    : "";
+    : recipe.subtitle
+      ? `<p class="aka">${escText(recipe.subtitle)}</p>`
+      : "";
   const ingredients = recipe.ingredients.map((item) => `<li>${escText(item)}</li>`).join("");
   const steps = recipe.steps.map((item) => `<li>${escText(item)}</li>`).join("");
   const url = safeUrl(recipe.url);

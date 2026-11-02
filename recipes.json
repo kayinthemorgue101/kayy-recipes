@@ -329,5 +329,32 @@
       "Add the rest of the lime juice.",
       "Add 1/2 cup of the boiled water (may be less depending on how much room is left in the jar)."
     ]
+  },
+  {
+    "id": "citrus-ginger-tea",
+    "name": "Respiratory / throat relief tea",
+    "subtitle": "Grapefruit, lemon & ginger",
+    "cat": "Remedies",
+    "creator": "Kayy's notes",
+    "serves": "About 10 cups",
+    "time": "20 min + 1.5-2 hr cooling",
+    "warning": true,
+    "note": "Very bitter, so add honey or another sweetener. Grapefruit interacts with many medications (e.g. statins, some blood pressure and anti-anxiety meds); check with a pharmacist if you take any.",
+    "ingredients": [
+      "3 grapefruit (preferably organic)",
+      "3 lemons (preferably organic)",
+      "quarter-sized piece of ginger",
+      "10 cups filtered or distilled water"
+    ],
+    "steps": [
+      "Slice the fruit (peels on) and place in a pot.",
+      "Add the ginger.",
+      "Add 10 cups of filtered or distilled water.",
+      "Bring to a boil on high, covered.",
+      "Don't lift the lid while it boils.",
+      "Remove from heat, keep covered, and let cool.",
+      "After about 1.5-2 hours of cooling, strain out the fruit and peels and pour into a glass jar; refrigerate.",
+      "Drink a shot glass 3-6 times a day as needed."
+    ]
   }
 ]

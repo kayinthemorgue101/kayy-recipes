@@ -19,7 +19,7 @@ function assert(cond, msg) {
 const ids = [
   "plantain-balls", "pastel", "lasagna", "wedges", "potato-salad",
   "guts-rolls", "ghostface", "sausage-ghosts", "magic-mouthwash",
-  "hot-cocoa-bark", "nightmare-bark", "cilantro-garlic-oil", "immunity-booster"
+  "hot-cocoa-bark", "nightmare-bark", "cilantro-garlic-oil", "immunity-booster", "citrus-ginger-tea"
 ];
 assert(recipes.map((r) => r.id).join(",") === ids.join(","), "recipe order");
 assert(categoriesOf(recipes).join("|") === "Mains|Sides & snacks|Halloween|Remedies|Christmas", "categories come from data, in first-seen order");
@@ -30,7 +30,7 @@ assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked u
 function idsMatching(cat, q) {
   return recipes.filter((r) => matchRecipe(r, cat, q)).map((r) => r.id);
 }
-assert(idsMatching("All", "").length === 13, "all recipes");
+assert(idsMatching("All", "").length === 14, "all recipes");
 assert(idsMatching("All", "plantain").join(",") === "plantain-balls,lasagna", "plantain is name/ingredient only");
 assert(idsMatching("Halloween", "plantain").length === 0, "category and search combine");
 assert(idsMatching("All", "straw").length === 0, "steps are not searched");
@@ -44,7 +44,7 @@ assert(idsMatching("All", "marshmallow").join(",") === "hot-cocoa-bark,nightmare
 assert(idsMatching("All", "Restaurant").length === 0, "restaurant credit stays in the note, not search");
 assert(idsMatching("All", "kayinthemorgue").join(",") === "hot-cocoa-bark,nightmare-bark", "both barks credit her handle");
 assert(idsMatching("Christmas", "jack").join(",") === "nightmare-bark", "jack faces ingredient");
-assert(idsMatching("Remedies", "").join(",") === "magic-mouthwash,cilantro-garlic-oil,immunity-booster", "remedies");
+assert(idsMatching("Remedies", "").join(",") === "magic-mouthwash,cilantro-garlic-oil,immunity-booster,citrus-ginger-tea", "remedies");
 assert(idsMatching("All", "detox").join(",") === "cilantro-garlic-oil", "alt name is searchable");
 assert(idsMatching("All", "botulism").length === 0, "warning note is not searched");
 
@@ -65,8 +65,8 @@ for (const recipe of recipes) {
   assert(index.includes(recipe.name), "name on home " + recipe.id);
 }
 assert(index.includes("Christmas"), "christmas chip");
-assert(index.includes(">All <span class=\"n\">13</span>"), "all count");
-assert(index.includes(">Remedies <span class=\"n\">3</span>"), "remedies count");
+assert(index.includes(">All <span class=\"n\">14</span>"), "all count");
+assert(index.includes(">Remedies <span class=\"n\">4</span>"), "remedies count");
 assert(index.includes("Sides &amp; snacks"), "ampersand escaped");
 assert(index.includes("/photos/hot-cocoa-bark.jpg"), "hot cocoa photo on the grid");
 assert(index.includes("/photos/nightmare-bark.jpg"), "nightmare photo on the grid");
@@ -114,6 +114,17 @@ assert(booster.includes("Kayy's notes"), "creator is her notes");
 assert(booster.includes("quarter-sized piece of ginger (like the coin)"), "ginger line verbatim");
 assert(booster.includes("Add 1/2 cup of the boiled water (may be less depending on how much room is left in the jar)."), "last step verbatim");
 assert(!booster.includes("Original on"), "no source link");
+
+const tea = fs.readFileSync(path.join(root, "dist", "r", "citrus-ginger-tea.html"), "utf8");
+assert(tea.includes("/photos/citrus-ginger-tea.jpg"), "tea photo");
+assert(tea.includes("Respiratory / throat relief tea"), "tea name");
+assert(tea.includes("Grapefruit, lemon &amp; ginger"), "tea subtitle");
+assert(tea.includes('class="note warn"'), "medication warning callout");
+assert(tea.includes("check with a pharmacist if you take any."), "grapefruit warning kept");
+assert(tea.includes("Don't lift the lid while it boils."), "lid step verbatim");
+assert(tea.includes("Drink a shot glass 3-6 times a day as needed."), "serving step verbatim");
+assert(!/ivermectin|zinc|supplement/i.test(tea), "no supplement dosing");
+assert(!tea.includes("Original on"), "tea has no source link");
 assert(index.includes("<title>Kayy's Cauldron</title>"), "home title");
 assert(index.includes('og:site_name" content="Kayy\'s Cauldron"'), "og site name");
 assert(index.includes("KAYY'S <b>CAULDRON</b>"), "wordmark");
