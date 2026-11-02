@@ -75,6 +75,7 @@ assert(index.includes("Photo to come"), "oil uses the placeholder caption");
 assert(index.includes("Heavy metal detox oil"), "alt name on the card");
 assert(index.includes('href="https://x.com/kayinthemorgue"'), "handle links to X");
 assert(!/kaysmorgue\.art|art\.art/i.test(index), "home does not reference the art sites");
+assert(!/TikTok|Pinterest/.test(index), "homepage has no platform list");
 
 const cocoa = fs.readFileSync(path.join(root, "dist", "r", "hot-cocoa-bark.html"), "utf8");
 assert(cocoa.includes("Adapted from Restaurant Clicks."), "restaurant credit kept in the note");

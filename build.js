@@ -210,7 +210,6 @@ function homeMain(recipes, cats) {
 
   return `<main id="main">
   <section class="hero">
-    <p class="eyebrow">Instagram · X · TikTok · Pinterest</p>
     <h1>Don't lose <em>another one</em>.</h1>
     <p class="lede">Recipes saved before the screenshots buried them. Sorted by category, photo still attached, original post one tap away.</p>
   </section>
@@ -328,7 +327,7 @@ function build() {
   fs.copyFileSync(path.join(root, "src", "favicon.svg"), path.join(dist, "favicon.svg"));
   fs.copyFileSync(path.join(root, "recipes.json"), path.join(dist, "recipes.json"));
 
-  const homeDescription = "Kayy's Cauldron. Dishes saved from Instagram, X, TikTok, and Pinterest, sorted by category, with the photo still attached.";
+  const homeDescription = "Kayy's Cauldron. Dishes saved from the feed, sorted by category, with the photo still attached.";
   const homeImage = siteUrl + "/photos/guts-rolls.jpg";
   fs.writeFileSync(path.join(dist, "index.html"), page({
     title: SITE_NAME,
