@@ -11,7 +11,8 @@ function recipeHaystack(recipe) {
 
 function matchRecipe(recipe, cat, q) {
   var needle = String(q || "").trim().toLowerCase();
-  var catOk = !cat || cat === "All" || recipe.cat === cat;
+  var catOk = !cat || cat === "All" ||
+  (cat === "Kayy's Concoctions" ? recipe.original === true : recipe.cat === cat);
   if (!catOk) return false;
   if (!needle) return true;
   return recipeHaystack(recipe).indexOf(needle) !== -1;
@@ -19,6 +20,11 @@ function matchRecipe(recipe, cat, q) {
 
 function categoriesOf(recipes) {
   var cats = [];
+if (recipes.some(function(recipe) {
+  return recipe.original === true;
+})) {
+  cats.push("Kayy's Concoctions");
+}
   for (var i = 0; i < recipes.length; i++) {
     if (cats.indexOf(recipes[i].cat) === -1) cats.push(recipes[i].cat);
   }
