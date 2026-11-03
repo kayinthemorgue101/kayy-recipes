@@ -354,5 +354,90 @@
       "After about 1.5-2 hours of cooling, strain out the fruit and peels and pour into a glass jar; refrigerate.",
       "Drink a shot glass 3-6 times a day as needed."
     ]
+  },
+  {
+    "id": "turmeric-echinacea-ginger-tea",
+    "name": "Turmeric, echinacea & ginger tea",
+    "cat": "Remedies",
+    "original": false,
+    "creator": "@earthtolela",
+    "platform": "Instagram",
+    "url": "https://www.instagram.com/reel/De-C1elTOcP/",
+    "serves": "About 2 cups",
+    "time": "About 10 min",
+    "subtitle": "Herbal tea sweetened with agave",
+    "note": "The creator presents this as a breast-lump/cancer cure; there's no evidence it treats or prevents cancer, so see a doctor about any breast lump. Turmeric can interact with blood thinners and diabetes meds and may bother people with gallbladder issues; echinacea can trigger allergies (especially with ragweed/daisy allergies) and isn't advised with autoimmune conditions or some medications. Check with a pharmacist if you take any medications or are pregnant. The water amount (2 cups) is an estimate; the reel didn't give it.",
+    "warning": true,
+    "ingredients": [
+      "1 tbsp turmeric",
+      "2 tbsp dried echinacea",
+      "1 tbsp ground ginger or grated fresh ginger",
+      "About 2 tbsp agave",
+      "About 2 cups boiling water (estimate)"
+    ],
+    "steps": [
+      "Add the turmeric, echinacea and ginger to a large jar.",
+      "Add the agave.",
+      "Pour in the boiling water and stir.",
+      "Steep for 7 minutes.",
+      "Strain into a glass and sip warm."
+    ]
+  },
+  {
+    "id": "stuffed-ham-cheese-baguettes",
+    "name": "Stuffed ham & cheese baguettes",
+    "cat": "Mains",
+    "original": false,
+    "creator": "@mumsfoodies",
+    "platform": "Instagram",
+    "url": "https://www.instagram.com/reel/DfAeOGioqrd/",
+    "serves": "12 mini baguettes",
+    "time": "About 1 hr 50 min",
+    "subtitle": "Freeze them or bake them now",
+    "note": "Amounts are from the caption, except the ham quantity and the garlic parsley oil, which are estimates; the reel didn't give them.",
+    "warning": false,
+    "ingredients": [
+      "Dough: 130 ml lukewarm milk (38°C), 230 ml lukewarm water (38°C), 15 g sugar, 7 g instant yeast, 500 g bread or AP flour (min 12% protein), 8 g salt",
+      "Filling: about 150 g sliced ham, e.g. Serrano (estimate), 300 g grated mozzarella",
+      "Garlic parsley oil: 3 tbsp olive oil or melted butter, 2 grated garlic cloves, 1 tbsp chopped parsley (estimate)"
+    ],
+    "steps": [
+      "Whisk the milk, water, sugar and yeast together. Add the flour and salt and mix until combined.",
+      "Cover for 5 min, then fold the dough over itself with a spatula about 20 times, turning the bowl, until soft and smooth (or use a mixer or knead by hand).",
+      "Cover and rest 1 hour. Line 2 trays with parchment.",
+      "With floured hands, pull the dough from the bowl onto a well-floured surface and cut into 12.",
+      "Flip a piece, press it out mostly at the edges, and put cheese and ham only in the middle. Pinch and squeeze it sealed. Repeat, keeping the dough covered with a towel.",
+      "Flip seam side down and gently roll the ends into a baguette shape. Place on the trays, cover and rest 20 min.",
+      "Preheat the oven to 220°C. Dust with flour and score diagonally.",
+      "To eat now: bake 11-13 min and brush with garlic oil straight out of the oven.",
+      "To freeze: bake 3-4 min (pull before golden), cool on a rack, freeze 1-2 hours until hard, then wrap. Bake from frozen at 210°C for 6-8 min."
+    ]
+  },
+  {
+    "id": "crispy-stuffed-pasta-shells",
+    "name": "Crispy stuffed pasta shells",
+    "cat": "Sides & snacks",
+    "original": false,
+    "creator": "@chula_buonappettito",
+    "platform": "Instagram",
+    "url": "https://www.instagram.com/reel/DeHgJvdt8YY/",
+    "serves": "20 shells",
+    "time": "About 1 hr plus cooling",
+    "subtitle": "Fried shells with a Grana Padano filling",
+    "note": "Amounts are from the caption. The total time and frying time (3-4 min) are estimates; the reel didn't give them.",
+    "warning": false,
+    "ingredients": [
+      "Filling: 40 g butter, 40 g plain flour, 500 ml milk, 1/2 tsp chicken flavouring (optional), 200 g grated Grana Padano",
+      "20 jumbo pasta shells",
+      "Coating: 2 eggs, 4 tbsp milk, salt and pepper, 1 cup flour, 1 1/2 cups breadcrumbs",
+      "Oil for deep-frying"
+    ],
+    "steps": [
+      "Melt the butter, add the flour and cook 1-2 min. Gradually whisk in the milk until thick. Stir in the Grana Padano, cool, and transfer to a piping bag.",
+      "Boil the shells in salted water for 12 min. Drain and cool.",
+      "Pipe the cheese sauce into each shell.",
+      "Coat in flour, then the egg-milk mixture (seasoned with salt and pepper), then breadcrumbs. Repeat egg and breadcrumbs for extra crunch.",
+      "Deep-fry at 180°C until golden and crispy, about 3-4 min (estimate). Drain and serve hot."
+    ]
   }
 ]
