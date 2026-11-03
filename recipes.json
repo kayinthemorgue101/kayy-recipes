@@ -366,8 +366,8 @@
     "serves": "About 2 cups",
     "time": "About 10 min",
     "subtitle": "Herbal tea sweetened with agave",
-    "note": "The creator presents this as a breast-lump/cancer cure; there's no evidence it treats or prevents cancer, so see a doctor about any breast lump. Turmeric can interact with blood thinners and diabetes meds and may bother people with gallbladder issues; echinacea can trigger allergies (especially with ragweed/daisy allergies) and isn't advised with autoimmune conditions or some medications. Check with a pharmacist if you take any medications or are pregnant. The water amount (2 cups) is an estimate; the reel didn't give it.",
-    "warning": true,
+    "note": "The water amount (2 cups) is an estimate; the reel didn't give it.",
+    "warning": false,
     "ingredients": [
       "1 tbsp turmeric",
       "2 tbsp dried echinacea",
