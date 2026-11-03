@@ -45,6 +45,51 @@
     });
   }
 
+  // "Made it" tracker: stored per device in localStorage, no login.
+  var MADE_KEY = "kc-made";
+  function loadMade() {
+    try {
+      var v = JSON.parse(localStorage.getItem(MADE_KEY) || "{}");
+      return v && typeof v === "object" ? v : {};
+    } catch (e) { return {}; }
+  }
+  var made = loadMade();
+  function saveMade() {
+    try { localStorage.setItem(MADE_KEY, JSON.stringify(made)); } catch (e) {}
+  }
+  function paintMade() {
+    document.querySelectorAll("[data-made]").forEach(function (b) {
+      var on = !!made[b.getAttribute("data-made")];
+      b.textContent = on ? "✅ Made it" : "Made it?";
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.classList.toggle("on", on);
+    });
+  }
+  var onMadeChange = function () {};
+  document.querySelectorAll("[data-made]").forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      var id = b.getAttribute("data-made");
+      if (made[id]) delete made[id]; else made[id] = Date.now();
+      saveMade();
+      paintMade();
+      toast(made[id] ? "Marked as made" : "Unmarked");
+      onMadeChange();
+    });
+  });
+  window.addEventListener("storage", function (e) {
+    if (e.key !== MADE_KEY) return;
+    made = loadMade();
+    paintMade();
+    onMadeChange();
+  });
+  window.addEventListener("pageshow", function () {
+    made = loadMade();
+    paintMade();
+    onMadeChange();
+  });
+  paintMade();
+
   var grid = document.querySelector("[data-grid]");
   if (!grid || typeof matchRecipe !== "function") {
     document.documentElement.classList.remove("boot");
@@ -105,8 +150,14 @@
     }
   }
 
+  function inCat(recipe, c) {
+    if (c === "Made it") return !!made[recipe.id];
+    if (c === "Not yet") return !made[recipe.id];
+    return matchRecipe(recipe, c, "");
+  }
+
   function apply() {
-    var counts = { All: 0 };
+    var counts = { All: 0, "Made it": 0, "Not yet": 0 };
 
     recipes.forEach(function (recipe) {
       if (!matchRecipe(recipe, "All", q)) return;
@@ -114,6 +165,7 @@
       counts.All++;
 
       counts[recipe.cat] = (counts[recipe.cat] || 0) + 1;
+      if (made[recipe.id]) counts["Made it"]++; else counts["Not yet"]++;
 
       // Original recipes also belong to Kayy's Concoctions.
       if (recipe.original === true) {
@@ -132,14 +184,14 @@
       var on = name === cat;
       chip.classList.toggle("on", on);
       chip.setAttribute("aria-pressed", on ? "true" : "false");
-      chip.disabled = n === 0 && !on;
+      chip.disabled = n === 0 && !on && name !== "Made it";
     });
 
     var shown = 0;
 
     cards.forEach(function (card) {
       var recipe = byId[card.getAttribute("data-id")];
-      var visible = !!(recipe && matchRecipe(recipe, cat, q));
+      var visible = !!(recipe && matchRecipe(recipe, "All", q) && inCat(recipe, cat));
 
       card.hidden = !visible;
       if (visible) shown++;
@@ -154,7 +206,9 @@
       emptyEl.hidden = shown !== 0;
 
       if (shown === 0) {
-        emptyEl.textContent = cat && cat !== "All"
+        emptyEl.textContent = cat === "Made it" && !q.trim()
+          ? "Nothing marked as made yet. Tap “Made it?” on a recipe."
+          : cat && cat !== "All"
           ? "Nothing in " + cat + " matches that."
           : "Nothing in the cauldron matches that.";
       }
@@ -203,5 +257,6 @@
     });
   }
 
+  onMadeChange = apply;
   apply();
 })();

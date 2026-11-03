@@ -310,6 +310,7 @@ function card(recipe, cats) {
     </span>
   </a>
   ${by}
+  <button type="button" class="made" data-made="${escAttr(recipe.id)}" aria-pressed="false">Made it?</button>
 </article>`;
 }
 
@@ -341,7 +342,9 @@ function homeMain(recipes, cats) {
     const on = i === 0;
 
     return `<button type="button" class="chip${on ? " on" : ""}" data-chip="${escAttr(chip.name)}" aria-pressed="${on ? "true" : "false"}">${escText(chip.name)} <span class="n">${chip.count}</span></button>`;
-  }).join("\n");
+  }).join("\n") +
+    '\n<button type="button" class="chip made-chip" data-chip="Made it" aria-pressed="false">✅ Made it <span class="n">0</span></button>' +
+    '\n<button type="button" class="chip made-chip" data-chip="Not yet" aria-pressed="false">Not yet <span class="n">' + recipes.length + '</span></button>';
 
   const cards = recipes.map((recipe, i) => {
     const html = card(recipe, cats);
@@ -362,12 +365,12 @@ function homeMain(recipes, cats) {
     </div>
 
     <form class="search" role="search" action="/" method="get">
-      <label class="sr" for="q">Search by dish, creator, or ingredient</label>
+      <label class="sr" for="q">Search recipes by any word</label>
       <svg class="mag" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/>
         <path d="M16 16l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <input id="q" name="q" type="search" placeholder="Dish, creator, or ingredient" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input id="q" name="q" type="search" placeholder="Search: halloween, ginger…" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button type="button" class="clear" data-clear hidden aria-label="Clear search">×</button>
     </form>
   </div>
@@ -497,6 +500,7 @@ function recipeMain(recipe, cats) {
         <div class="actions">
           ${source}
           <button type="button" class="btn ghost" data-copy="/r/${recipe.id}">Copy link</button>
+          <button type="button" class="btn ghost made-btn" data-made="${escAttr(recipe.id)}" aria-pressed="false">Made it?</button>
         </div>
       </div>
     </div>

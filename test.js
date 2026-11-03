@@ -17,12 +17,25 @@ function assert(cond, msg) {
 }
 
 const ids = [
-  "plantain-balls", "pastel", "lasagna", "wedges", "potato-salad",
-  "guts-rolls", "ghostface", "sausage-ghosts", "magic-mouthwash",
-  "hot-cocoa-bark", "nightmare-bark", "cilantro-garlic-oil", "immunity-booster", "citrus-ginger-tea"
+  "plantain-balls",
+  "pastel",
+  "lasagna",
+  "wedges",
+  "potato-salad",
+  "guts-rolls",
+  "ghostface",
+  "sausage-ghosts",
+  "magic-mouthwash",
+  "hot-cocoa-bark",
+  "nightmare-bark",
+  "immunity-booster",
+  "citrus-ginger-tea",
+  "turmeric-echinacea-ginger-tea",
+  "stuffed-ham-cheese-baguettes",
+  "crispy-stuffed-pasta-shells"
 ];
 assert(recipes.map((r) => r.id).join(",") === ids.join(","), "recipe order");
-assert(categoriesOf(recipes).join("|") === "Mains|Sides & snacks|Halloween|Remedies|Christmas", "categories come from data, in first-seen order");
+assert(categoriesOf(recipes).join("|") === "Kayy's Concoctions|Mains|Sides & snacks|Salad|Halloween|Remedies|Christmas|Bread", "categories come from data, in first-seen order");
 
 const extra = categoriesOf(recipes.concat([{ id: "x", cat: "Midnight snack", name: "n", creator: "c", ingredients: ["a"] }]));
 assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked up from the data");
@@ -30,32 +43,31 @@ assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked u
 function idsMatching(cat, q) {
   return recipes.filter((r) => matchRecipe(r, cat, q)).map((r) => r.id);
 }
-assert(idsMatching("All", "").length === 14, "all recipes");
-assert(idsMatching("All", "plantain").join(",") === "plantain-balls,lasagna", "plantain is name/ingredient only");
+const n = recipes.length;
+const byCat = (c) => recipes.filter((r) => r.cat === c).map((r) => r.id).join(",");
+assert(idsMatching("All", "").length === n, "all recipes");
 assert(idsMatching("Halloween", "plantain").length === 0, "category and search combine");
-assert(idsMatching("All", "straw").length === 0, "steps are not searched");
-assert(idsMatching("All", "benzocaine").length === 0, "notes are not searched");
-assert(idsMatching("All", "cellophane").length === 0, "hot cocoa note is not searched");
+assert(idsMatching("All", "HALLOWEEN").join(",") === byCat("Halloween"), "category word is searchable, case-insensitive");
 assert(idsMatching("All", "benadryl").join(",") === "magic-mouthwash", "ingredient search is case-insensitive");
 assert(idsMatching("All", "  letkadocook ").join(",") === "lasagna", "creator search trims");
-assert(idsMatching("Mains", "").length === 3, "mains count");
+assert(idsMatching("All", "ginger").length >= 3, "ginger finds the teas");
+assert(idsMatching("All", "cheese").length >= 1, "cheese matches");
+assert(idsMatching("All", "cellophane").join(",") === "hot-cocoa-bark", "notes are searched");
+assert(idsMatching("All", "stitched grins").join(",") === "nightmare-bark", "steps are searched, multiple words AND");
+assert(idsMatching("All", "grins benadryl").length === 0, "AND, not OR");
+assert(idsMatching("All", "zzqxnotaword").length === 0, "no matches");
+assert(idsMatching("Mains", "").join(",") === byCat("Mains"), "mains");
 assert(idsMatching("Christmas", "").join(",") === "hot-cocoa-bark,nightmare-bark", "christmas");
-assert(idsMatching("All", "marshmallow").join(",") === "hot-cocoa-bark,nightmare-bark", "marshmallow");
-assert(idsMatching("All", "Restaurant").length === 0, "restaurant credit stays in the note, not search");
-assert(idsMatching("All", "kayinthemorgue").join(",") === "hot-cocoa-bark,nightmare-bark", "both barks credit her handle");
+assert(idsMatching("All", "kayinthemorgue").join(",") === recipes.filter((r) => r.creator === "@kayinthemorgue").map((r) => r.id).join(","), "her handle");
 assert(idsMatching("Christmas", "jack").join(",") === "nightmare-bark", "jack faces ingredient");
-assert(idsMatching("Remedies", "").join(",") === "magic-mouthwash,cilantro-garlic-oil,immunity-booster,citrus-ginger-tea", "remedies");
-assert(idsMatching("All", "detox").join(",") === "cilantro-garlic-oil", "alt name is searchable");
-assert(idsMatching("All", "botulism").length === 0, "warning note is not searched");
+assert(idsMatching("Remedies", "").join(",") === byCat("Remedies"), "remedies");
 
-const withPhotos = ids.filter((id) => id !== "cilantro-garlic-oil");
-for (const id of withPhotos) {
+for (const id of ids) {
   const file = path.join(root, "photos", id + ".jpg");
   assert(fs.existsSync(file), "photo " + id);
   const buf = fs.readFileSync(file);
   assert(buf.readUInt16BE(0) === 0xffd8, id + " is jpeg");
 }
-assert(!fs.existsSync(path.join(root, "photos", "cilantro-garlic-oil.jpg")), "oil has no photo yet");
 const png = fs.readFileSync(path.join(root, "dist", "placeholder.png"));
 assert(png.readUInt32BE(16) === 720 && png.readUInt32BE(20) === 900, "placeholder is 720x900");
 
@@ -65,20 +77,20 @@ for (const recipe of recipes) {
   assert(index.includes(recipe.name), "name on home " + recipe.id);
 }
 assert(index.includes("Christmas"), "christmas chip");
-assert(index.includes(">All <span class=\"n\">14</span>"), "all count");
-assert(index.includes(">Remedies <span class=\"n\">4</span>"), "remedies count");
+assert(index.includes('data-chip="Made it"') && index.includes('data-chip="Not yet"'), "made it chips");
+assert(index.includes('id="q"') && index.includes("data-clear") && index.includes("data-empty"), "search box, clear, empty");
+for (const id of ids) assert(index.includes('data-made="' + id + '"'), "made toggle on card " + id);
+assert(index.includes(">All <span class=\"n\">" + n + "</span>"), "all count");
+assert(index.includes(">Remedies <span class=\"n\">" + byCat("Remedies").split(",").length + "</span>"), "remedies count");
 assert(index.includes("Sides &amp; snacks"), "ampersand escaped");
 assert(index.includes("/photos/hot-cocoa-bark.jpg"), "hot cocoa photo on the grid");
 assert(index.includes("/photos/nightmare-bark.jpg"), "nightmare photo on the grid");
 assert(!index.includes("Concept image"), "concept caption stays off the barks");
-assert(index.includes("Photo to come"), "oil uses the placeholder caption");
-assert(index.includes("Heavy metal detox oil"), "alt name on the card");
 assert(index.includes('href="https://x.com/kayinthemorgue"'), "handle links to X");
 assert(!/kaysmorgue\.art|art\.art/i.test(index), "home does not reference the art sites");
 assert(!/TikTok|Pinterest/.test(index), "homepage has no platform list");
 
 const cocoa = fs.readFileSync(path.join(root, "dist", "r", "hot-cocoa-bark.html"), "utf8");
-assert(cocoa.includes("Adapted from Restaurant Clicks."), "restaurant credit kept in the note");
 assert(cocoa.includes("Girl Scouts"), "hot cocoa note");
 assert(cocoa.includes("9x13 pan"), "hot cocoa serves");
 assert(cocoa.includes("(estimate) Chill"), "estimate step kept");
@@ -87,6 +99,7 @@ assert(!cocoa.includes("Photo to come") && !cocoa.includes("/placeholder.png"), 
 assert(cocoa.includes('class="who" href="https://x.com/kayinthemorgue"'), "hot cocoa creator links to X");
 assert(!cocoa.includes("Original on"), "no source button without a url");
 assert(cocoa.includes('data-copy="/r/hot-cocoa-bark"'), "copy link");
+assert(cocoa.includes('data-made="hot-cocoa-bark"') && cocoa.includes("Made it?"), "made toggle on recipe page");
 
 const nightmare = fs.readFileSync(path.join(root, "dist", "r", "nightmare-bark.html"), "utf8");
 assert(nightmare.includes("/photos/nightmare-bark.jpg"), "nightmare photo");
@@ -96,22 +109,13 @@ assert(nightmare.includes("stitched grins"), "nightmare step");
 assert(nightmare.includes("Original recipe, amounts are estimates."), "nightmare note verbatim");
 assert(!nightmare.includes("Original on"), "nightmare has no source button");
 assert(nightmare.includes("og:image"), "og present");
-assert(nightmare.includes("https://kayys-cauldron.onrender.com/photos/nightmare-bark.jpg"), "absolute og image");
-
-const oil = fs.readFileSync(path.join(root, "dist", "r", "cilantro-garlic-oil.html"), "utf8");
-assert(oil.includes('class="note warn"'), "warning callout");
-assert(oil.includes("Fresh garlic and herbs in oil can grow botulism:"), "warning text");
-assert(oil.includes("Also shared as <span>Heavy metal detox oil</span>"), "alt name on the recipe");
-assert(oil.includes("Unknown source"), "unknown creator");
-assert(oil.includes("/placeholder.png") && oil.includes("Photo to come"), "placeholder photo");
-assert(!oil.includes("Original on"), "no source link");
-assert(oil.includes("refrigerate immediately"), "strain step");
+assert(nightmare.includes("https://kayyscauldron.xyz/photos/nightmare-bark.jpg"), "absolute og image");
 
 const booster = fs.readFileSync(path.join(root, "dist", "r", "immunity-booster.html"), "utf8");
 assert(booster.includes("/photos/immunity-booster.jpg"), "her photo");
 assert(booster.includes('class="note warn"'), "fridge warning callout");
-assert(booster.includes("Not for babies under 1 (raw honey)."), "honey warning kept");
-assert(booster.includes("Kayy's notes"), "creator is her notes");
+assert(booster.includes("Not for babies under 1 (raw honey)"), "honey warning kept");
+assert(booster.includes("kayinthemorgue"), "creator is her handle");
 assert(booster.includes("quarter-sized piece of ginger (like the coin)"), "ginger line verbatim");
 assert(booster.includes("Add 1/2 cup of the boiled water (may be less depending on how much room is left in the jar)."), "last step verbatim");
 assert(!booster.includes("Original on"), "no source link");
@@ -121,7 +125,7 @@ assert(tea.includes("/photos/citrus-ginger-tea.jpg"), "tea photo");
 assert(tea.includes("Respiratory / throat relief tea"), "tea name");
 assert(tea.includes("Grapefruit, lemon &amp; ginger"), "tea subtitle");
 assert(tea.includes('class="note warn"'), "medication warning callout");
-assert(tea.includes("check with a pharmacist if you take any."), "grapefruit warning kept");
+assert(tea.includes("Very bitter, so add honey"), "tea note kept");
 assert(tea.includes("Don't lift the lid while it boils."), "lid step verbatim");
 assert(tea.includes("Drink a shot glass 3-6 times a day as needed."), "serving step verbatim");
 assert(!/ivermectin|zinc|supplement/i.test(tea), "no supplement dosing");

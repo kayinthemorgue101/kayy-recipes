@@ -2,8 +2,8 @@
 // so these function declarations are visible to app.js.
 
 function recipeHaystack(recipe) {
-  return [recipe.name, recipe.aka, recipe.subtitle, recipe.creator]
-    .concat(recipe.ingredients || [])
+  return [recipe.name, recipe.aka, recipe.subtitle, recipe.cat, recipe.creator, recipe.note]
+    .concat(recipe.ingredients || [], recipe.steps || [])
     .filter(Boolean)
     .join("\n")
     .toLowerCase();
@@ -15,7 +15,11 @@ function matchRecipe(recipe, cat, q) {
   (cat === "Kayy's Concoctions" ? recipe.original === true : recipe.cat === cat);
   if (!catOk) return false;
   if (!needle) return true;
-  return recipeHaystack(recipe).indexOf(needle) !== -1;
+  var hay = recipeHaystack(recipe);
+  // Every word must appear somewhere (AND).
+  return needle.split(/\s+/).every(function (word) {
+    return hay.indexOf(word) !== -1;
+  });
 }
 
 function categoriesOf(recipes) {
