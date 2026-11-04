@@ -32,10 +32,11 @@ const ids = [
   "citrus-ginger-tea",
   "turmeric-echinacea-ginger-tea",
   "stuffed-ham-cheese-baguettes",
-  "crispy-stuffed-pasta-shells"
+  "crispy-stuffed-pasta-shells",
+  "vanilla-chai"
 ];
 assert(recipes.map((r) => r.id).join(",") === ids.join(","), "recipe order");
-assert(categoriesOf(recipes).join("|") === "Kayy's Concoctions|Mains|Sides & snacks|Salad|Halloween|Remedies|Christmas|Bread", "categories come from data, in first-seen order");
+assert(categoriesOf(recipes).join("|") === "Kayy's Concoctions|Mains|Sides & snacks|Salad|Halloween|Remedies|Christmas|Bread|Drinks", "categories come from data, in first-seen order");
 
 const extra = categoriesOf(recipes.concat([{ id: "x", cat: "Midnight snack", name: "n", creator: "c", ingredients: ["a"] }]));
 assert(extra[extra.length - 1] === "Midnight snack", "a new category is picked up from the data");
